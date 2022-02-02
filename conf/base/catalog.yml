@@ -2,3 +2,33 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
+
+############################# Raw Data ##############################
+train_data:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train.csv
+  load_args:
+    index_col: id
+
+test_data:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/test.csv
+  load_args:
+    index_col: id
+
+transactions:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/transactions.csv
+
+stores:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/stores.csv
+
+oil:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/oil.csv
+
+holiday_events:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/holiday_events.csv
+
