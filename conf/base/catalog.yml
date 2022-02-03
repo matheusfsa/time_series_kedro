@@ -9,13 +9,14 @@ train_data:
   filepath: data/01_raw/train.csv
   load_args:
     index_col: id
+    parse_dates: [date]
 
 test_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/test.csv
   load_args:
     index_col: id
-
+    parse_dates: [date]
 transactions:
   type: pandas.CSVDataSet
   filepath: data/01_raw/transactions.csv
@@ -32,3 +33,9 @@ holiday_events:
   type: pandas.CSVDataSet
   filepath: data/01_raw/holiday_events.csv
 
+############## Intermediate data ###############3
+prepared_data:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/prepared_data.csv
+  load_args:
+    parse_dates: [date]
