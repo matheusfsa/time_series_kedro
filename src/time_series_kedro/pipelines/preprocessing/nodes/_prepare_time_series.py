@@ -50,7 +50,7 @@ def _build_series(
         Data with prepared time serie
     """
     serie = serie_data.set_index(date_col)[[serie_target]]
-    full_serie = serie.reindex(pd.date_range(serie.index.min(), serie.index.max()))
+    full_serie = serie.reindex(pd.Index(pd.date_range(serie.index.min(), serie.index.max()), name="date"))
     full_serie[serie_target] = _rolling_fill(full_serie[serie_target], n=2)
     return full_serie
 

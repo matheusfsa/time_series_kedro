@@ -9,3 +9,12 @@ serie_period: date
 serie_freq: D
 series_level:
   columns: [family,]
+  
+group_divisions:
+  cv: 
+    method: mean
+    args: []
+
+  acc_12m: 
+    method: quantile
+    args: [0.7]

@@ -39,3 +39,11 @@ prepared_data:
   filepath: data/02_intermediate/prepared_data.csv
   load_args:
     parse_dates: [date]
+    
+seg_metrics:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/seg_metrics.csv
+
+seg_groups:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/seg_groups.csv

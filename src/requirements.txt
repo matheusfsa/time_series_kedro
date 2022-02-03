@@ -22,3 +22,6 @@ numpy==1.22.1
 
 # Data viz
 matplotlib==3.5.1
+
+# Time Series Forecast
+statsmodels==0.13.1
