@@ -17,14 +17,14 @@ def prepare_time_series(
     (adding duplicate periods and adding periods without observations) and 
     filling null values.
 
-    Parameters:
-    data (pd.DataFrame): Dataframe with time series.
-    date_col (str): Period column name.
-    serie_target (str): Target column name.
-    serie_id (Union[str, List[str]]): Column or list of columns that identify series.
+    Args:
+        data: Dataframe with time series.
+        date_col: Period column name.
+        serie_target: Target column name.
+        serie_id: Column or list of columns that identify series.
 
-    Return:
-    pd.DataFrame: Data with prepared data
+    Returns:
+        Data with prepared time series
     """
     data = data.groupby([date_col] + serie_id).sum()[serie_target].reset_index()
 
@@ -36,6 +36,19 @@ def _build_series(
     serie_data: pd.DataFrame, 
     serie_target: str, 
     date_col: str) -> pd.DataFrame:
+    """
+    This function prepare a time series, ensuring that all series have all periods 
+    (adding duplicate periods and periods without observations) and 
+    filling null values.
+
+    Args:
+        serie_data: Dataframe with time series.
+        serie_target: Target column name.
+        date_col: Period column name.
+
+    Returns:
+        Data with prepared time serie
+    """
     serie = serie_data.set_index(date_col)[[serie_target]]
     full_serie = serie.reindex(pd.date_range(serie.index.min(), serie.index.max()))
     full_serie[serie_target] = _rolling_fill(full_serie[serie_target], n=2)
@@ -50,11 +63,12 @@ def _rolling_fill(
 
     """
     Fills Na values with the mean of the nearest values.
-        Params:
-            data: Original Series.
-            n: Window size.
-        Returns:
-            pd.Series -> Series with missing values filled. 
+
+    Args:
+        data: Original Series.
+        n: Window size.
+    Return:
+        Series with missing values filled. 
     """
 
     data[data < 0] = 0

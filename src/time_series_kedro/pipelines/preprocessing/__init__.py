@@ -1,6 +1,4 @@
-"""
-This is a boilerplate pipeline 'preprocessing'
-generated using Kedro 0.17.6
+""" ``time_series_kedro.pipelines.preprocessing`` is the pipeline responsible for pre-processing the data. 
 """
 
 from .pipeline import create_pipeline
