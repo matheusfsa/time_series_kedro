@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from itertools import product
 from statsmodels.tsa.stattools import adfuller
-
 def compute_seg_metrics(
     data: pd.DataFrame,
     serie_id: Union[List[str], str],
@@ -26,6 +25,7 @@ def compute_seg_metrics(
     return seg_data.reset_index()
 
 def time_series_segmentation(
+    data: pd.DataFrame,
     seg_metrics: pd.DataFrame, 
     serie_id: Union[List[str], str],
     group_divisions: Dict[str, Any]):
@@ -34,6 +34,7 @@ def time_series_segmentation(
     have been defined for the metrics.
 
     Args:
+        data: Dataframe with time series.
         seg_metrics: Dataframe with metrics computed to each serie.
         serie_id: Column or list of columns that identify series.
         group_division: Conditions that have been defined for the metrics
@@ -53,8 +54,9 @@ def time_series_segmentation(
             comp_filter = getattr(seg_metrics[metric], comp)(value)
             series_filter = series_filter & comp_filter
         seg_metrics.loc[series_filter, "group"] = i + 1
-
-    return seg_metrics[serie_id + ["group"]]
+    seg_metrics = seg_metrics[serie_id + ["group"]]
+    return pd.merge(data, seg_metrics, on=serie_id)
+    
 
 def _seg_metrics(
     serie_data: pd.DataFrame,

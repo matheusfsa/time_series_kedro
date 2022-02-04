@@ -32,10 +32,11 @@ def create_pipeline(**kwargs):
         node(
             func=time_series_segmentation,
             inputs={
+                "data": "prepared_data",
                 "seg_metrics": "seg_metrics",
                 "serie_id": "params:series_level.columns",
                 "group_divisions": "params:group_divisions"},
-            outputs="seg_groups",
+            outputs="seg_data",
             name="time_series_segmentation"
         ),
     ])
