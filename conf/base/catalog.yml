@@ -61,3 +61,11 @@ eval_data:
   filepath: data/05_model_input/eval_data.csv
   load_args:
     parse_dates: [date]
+
+############# Models ########################
+best_estimators:
+  type: pandas.CSVDataSet
+  filepath: data/06_models/best_estimators.csv
+
+metrics:
+    type: kedro_mlflow.io.metrics.MlflowMetricsDataSet

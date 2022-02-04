@@ -32,3 +32,4 @@ statsmodels==0.13.1
 pmdarima==1.8.4
 prophet==1.0.1
 
+kedro-mlflow==0.8.0

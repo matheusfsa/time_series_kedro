@@ -21,7 +21,9 @@ def train_model(
     model: Dict[str, Any],
     stride: int,
     fr_horizon: int,
-    initial: Union[float, int]
+    initial: Union[float, int],
+    n_jobs: int = -1,
+    score: str = "rmse"
     ) -> pd.DataFrame:
 
     model_groups_params = model["params"]
@@ -35,7 +37,9 @@ def train_model(
                                                                                     date_col, 
                                                                                     stride, 
                                                                                     fr_horizon, 
-                                                                                    initial))
+                                                                                    initial,
+                                                                                    n_jobs,
+                                                                                    score))
     return best_estimators
 
 def _search(
@@ -46,7 +50,9 @@ def _search(
     date_col: str,
     stride: int,
     fr_horizon: int,
-    initial: Union[float, int]):
+    initial: Union[float, int],
+    n_jobs: int,
+    score: str):
     serie_group = serie_data.group.iloc[0]
 
     model_group = None
@@ -61,12 +67,19 @@ def _search(
         ts = serie_data.set_index(date_col)[serie_target]
         start_point = int(initial) if initial > 1 else int(initial*ts.shape[0])
         cv = RollingForecastCV(step=stride, h=fr_horizon, initial=start_point)
-        search = TSModelSearchCV(clone(estimator), params_search, cv_split=cv)
+        search = TSModelSearchCV(clone(estimator), params_search, cv_split=cv, n_jobs=n_jobs, verbose=0, score=score)
         search.fit(ts)
         result = pd.Series({"estimator": search._best_estimator, "metric": search._best_score})
         
     else:
         result = pd.Series({"estimator": None, "metric": np.nan})
-    return result    
+    return result   
+
 def model_selection(*best_estimators):
-    return pd.concat(best_estimators)
+
+    estimators = pd.concat(best_estimators)
+    estimators = estimators.reset_index().groupby("family").apply(lambda data: data.set_index("estimator").metric.idxmin())
+    estimators.name = "best_estimator"
+    estimators = estimators.reset_index()
+    
+    return estimators
