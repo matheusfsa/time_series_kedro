@@ -7,6 +7,8 @@ from itertools import product
 from joblib import Parallel, delayed, cpu_count
 from sklearn.metrics import mean_squared_error
 from sklearn.base import BaseEstimator
+import time_series_kedro.extras.models as used_models
+from time_series_kedro.extras.utils import ld2dl
 import time
 import warnings
 warnings.filterwarnings("ignore")
@@ -117,7 +119,6 @@ def _fit_and_pred(
         print(msg)  
     ret = {
             'fold': fold,
-            'estimator_str':str(estimator),
             'estimator': estimator,
             'training_status': status,
             'error_message': message,
@@ -126,7 +127,7 @@ def _fit_and_pred(
     
     return ret
 
-class TSGridSearchCV(BaseEstimator):
+class TSModelSearchCV(BaseEstimator):
     
     def __init__(self, estimator, params_grid, cv_split, fit_error='warn', n_jobs=-1, verbose=1):
         
@@ -171,10 +172,10 @@ class TSGridSearchCV(BaseEstimator):
                                               for (cand_idx, parameters), (fold, (train, test)) in product(
                                                   enumerate(params), enumerate(self.cv_split.split(y, X)))
         )
-        return out
-        models = map(lambda x: x["estimator"][0], out)
-        metrics = map(lambda x: x["metric"], out)
-        results = pd.DataFrame({"estimator": models, "metric": metrics})
-        best_estimator = results.groupby("estimator").mean().idxmin()["metric"]
-        out = list(filter(lambda x: x["estimator"][0] == best_estimator, out))
-        return out
+        out = pd.DataFrame(ld2dl(out))
+        out["estimator"] = out.estimator.apply(str)
+        estimators_results = out.groupby("estimator").mean().metric
+        best_estimator_str = estimators_results.idxmin()
+        self._best_score = estimators_results.min()
+        self._best_estimator =  eval(f"used_model.{best_estimator_str}")
+        return self

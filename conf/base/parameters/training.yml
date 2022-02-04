@@ -3,3 +3,68 @@
 #
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
+models:
+    exponential_smoothing:
+        model_class: time_series_kedro.extras.models.ExponentialSmoothing
+        default_args: null
+        params:
+            all:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False]
+                      trend: [null]
+                      seasonal: [add, null]
+                      seasonal_periods: [6, 12]
+    arima:
+      model_class: time_series_kedro.extras.models.ARIMA
+      default_args: null
+      params:
+          all:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      order: [[1, 0, 0], [1, 0, 1], [1, 1, 1]]
+                      seasonal_order: [[0, 0, 1, 12],[1, 0, 1, 12]]
+    random_forest:
+      model_class: time_series_kedro.extras.models.RandomForestForecaster
+      default_args: null
+      params:
+          all:
+            params_search:
+                search: random
+                n_iter: 2
+                params:
+                    lags: [3, 6, 12]
+                    n_estimators: list(map(int, np.linspace(start = 50, stop = 1500, num = 100)))
+                    max_depth: np.append(list(map(int, np.linspace(3, 100, num = 50))), [None])
+                    min_iter_split: [2, 5, 10,  20]
+                    min_iter_leaf: [1, 2, 4, 8]
+                    poly_degree: [1, 2]
+    svr:
+      model_class: time_series_kedro.extras.models.SVRForecaster
+      default_args: null
+      params:
+          all:
+            params_search:
+                search: random
+                n_iter: 2
+                params:
+                    lags: [3, 6, 12]
+                    alpha: stats.loguniform(0.1, 10.0)
+    ada:
+      model_class: time_series_kedro.extras.models.AdaForecaster
+      default_args: null
+      params:
+          all:
+            params_search:
+                search: random
+                n_iter: 2
+                params:
+                    lags: [3, 6, 12]
+                    n_estimators: list(map(int, np.linspace(start = 50, stop = 1500, num = 100)))
+                    learning_rate: stats.loguniform(0.05, 0.3)
+                    poly_degree: [1, 2]
+    

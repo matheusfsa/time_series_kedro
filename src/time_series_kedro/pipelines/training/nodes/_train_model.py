@@ -1,0 +1,72 @@
+import imp
+from itertools import groupby
+from typing import Any, Dict, List, Union
+
+import numpy as np
+from ._params_search import build_params_search
+from ._search import TSModelSearchCV
+from time_series_kedro.extras.utils import model_from_string
+from pmdarima.model_selection import RollingForecastCV
+from sklearn.base import clone, BaseEstimator
+import pandas as pd
+import warnings
+
+warnings.filterwarnings("ignore")
+
+def train_model(
+    series_data: pd.DataFrame,
+    serie_id: Union[str, List],
+    serie_target: str,
+    date_col: str,
+    model: Dict[str, Any],
+    stride: int,
+    fr_horizon: int,
+    initial: Union[float, int]
+    ) -> pd.DataFrame:
+
+    model_groups_params = model["params"]
+    
+    estimator = model_from_string(model["model_class"], model["default_args"])
+    
+    best_estimators = series_data.groupby(serie_id).apply(lambda serie_data: _search(serie_data, 
+                                                                                    estimator, 
+                                                                                    model_groups_params, 
+                                                                                    serie_target, 
+                                                                                    date_col, 
+                                                                                    stride, 
+                                                                                    fr_horizon, 
+                                                                                    initial))
+    return best_estimators
+
+def _search(
+    serie_data: pd.DataFrame,
+    estimator_base: BaseEstimator,
+    model_groups_params: Dict[str, Any],
+    serie_target: str,
+    date_col: str,
+    stride: int,
+    fr_horizon: int,
+    initial: Union[float, int]):
+    serie_group = serie_data.group.iloc[0]
+
+    model_group = None
+    if serie_group in model_groups_params:
+        model_group  = serie_group
+    if "all" in model_groups_params:
+        model_group = "all"
+
+    if model_group is not None:
+        params_search = build_params_search(model_groups_params[model_group]["params_search"])
+        estimator = clone(estimator_base)
+        ts = serie_data.set_index(date_col)[serie_target]
+        start_point = int(initial) if initial > 1 else int(initial*ts.shape[0])
+        cv = RollingForecastCV(step=stride, h=fr_horizon, initial=start_point)
+        search = TSModelSearchCV(clone(estimator), params_search, cv_split=cv)
+        search.fit(ts)
+        result = pd.Series({"estimator": search._best_estimator, "metric": search._best_score})
+        
+    else:
+        result = pd.Series({"estimator": None, "metric": np.nan})
+    return result    
+def model_selection(*best_estimators):
+    return pd.concat(best_estimators)
