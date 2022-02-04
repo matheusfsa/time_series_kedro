@@ -44,6 +44,6 @@ seg_metrics:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/seg_metrics.csv
 
-seg_groups:
+seg_data:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/seg_groups.csv
+  filepath: data/02_intermediate/seg_data.csv
