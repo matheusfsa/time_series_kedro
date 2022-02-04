@@ -4,7 +4,7 @@
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
 ############################# Raw Data ##############################
-train_data:
+master_table:
   type: pandas.CSVDataSet
   filepath: data/01_raw/train.csv
   load_args:
@@ -17,6 +17,7 @@ test_data:
   load_args:
     index_col: id
     parse_dates: [date]
+    
 transactions:
   type: pandas.CSVDataSet
   filepath: data/01_raw/transactions.csv
@@ -33,7 +34,7 @@ holiday_events:
   type: pandas.CSVDataSet
   filepath: data/01_raw/holiday_events.csv
 
-############## Intermediate data ###############3
+############## Intermediate data ###############
 prepared_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/prepared_data.csv
@@ -47,3 +48,16 @@ seg_metrics:
 seg_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/seg_data.csv
+
+############# Model Input ####################
+train_data:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/train_data.csv
+  load_args:
+    parse_dates: [date]
+
+eval_data:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/eval_data.csv
+  load_args:
+    parse_dates: [date]

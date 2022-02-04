@@ -9,7 +9,8 @@ serie_period: date
 serie_freq: D
 series_level:
   columns: [family,]
-  
+
+test_size: 30
 group_divisions:
   cv: 
     method: mean
