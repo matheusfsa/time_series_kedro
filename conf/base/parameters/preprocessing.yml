@@ -1,0 +1,23 @@
+# This is a boilerplate parameters config generated for pipeline 'preprocessing'
+# using Kedro 0.17.6.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
+
+serie_target: sales
+serie_period: date
+serie_freq: D
+
+series_level:
+  columns: [family,]
+
+test_size: 30
+
+group_divisions:
+  cv: 
+    method: mean
+    args: []
+
+  acc_12m: 
+    method: quantile
+    args: [0.7]

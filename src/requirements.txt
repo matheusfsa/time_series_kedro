@@ -12,3 +12,23 @@ pytest-cov~=3.0
 pytest-mock>=1.7.1, <2.0
 pytest~=6.2
 wheel>=0.35, <0.37
+
+# kedro utils
+kedro_viz==4.3.1
+
+# Data manipulation
+pandas==1.4.0 
+numpy==1.22.1
+scikit-learn==1.0.2
+
+# Data viz
+matplotlib==3.5.1
+# Data manipulation
+pandas==1.4.0 
+numpy==1.21.5
+
+# Time Series Forecast
+statsmodels==0.13.1
+sktime==0.10.0
+
+
