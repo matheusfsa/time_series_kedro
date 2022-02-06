@@ -1,13 +1,18 @@
+import imp
 from typing import Any, Dict, List, Union
 import numpy as np
 import pandas as pd
 from itertools import product
 from statsmodels.tsa.stattools import adfuller
+from time_series_kedro.extras.utils import parallel_groupby
+
+
 def compute_seg_metrics(
     data: pd.DataFrame,
     serie_id: Union[List[str], str],
     serie_target: str,
-    serie_freq: str
+    serie_freq: str,
+    n_jobs: int
 ):
     """
     This node calculates metrics to assess the quality of the series.
@@ -20,9 +25,66 @@ def compute_seg_metrics(
     Returns:
         Dataframe with metrics computed to each serie.
     """
-
-    seg_data = data.groupby(serie_id).apply(lambda serie_data: _seg_metrics(serie_data, serie_target, serie_freq)) 
+    group_func = lambda data, group_cols, **kwargs: data.groupby(group_cols).apply(lambda serie_data: _seg_metrics(serie_data, **kwargs)) 
+    seg_data = parallel_groupby(data, group_func, serie_id, n_jobs=n_jobs, serie_target=serie_target, serie_freq=serie_freq)
     return seg_data.reset_index()
+    
+def _seg_metrics(
+    data: pd.DataFrame,
+    serie_target: str,
+    serie_freq: str
+) -> pd.Series:
+    """
+    This function compute metrics (Sample Entropy, Coefficient of variation, 
+    Serie size, Amount accumulated in the last cycle).
+
+    Args:
+        data: Dataframe with time serie.
+        serie_target: Target column name.
+        serie_freq: Serie frequency.
+    Returns:
+        Serie metrics.
+    """
+    ts = data[serie_target].values
+    nonzeros = np.nonzero(ts)
+    if nonzeros[0].shape[0]:
+        first_point = nonzeros[0][0]
+        last_point = nonzeros[0][-1]
+        len_ts = (last_point - first_point) + 1
+        ts = ts[first_point:]
+        sample_entropy = _sample_entropy(ts, m=2, r=0.2*np.std(ts)) 
+        adf = adfuller(ts)[0]
+    else:
+        len_ts = 1
+        sample_entropy = np.nan
+        adf = np.nan
+    
+    
+    mean = ts.mean()
+    if mean:
+        cv = ts.std()/mean
+    else:
+        cv = np.nan
+
+    if serie_freq == "D":
+        last = 30
+    elif serie_freq == "M" or serie_freq == "MS":
+        last = 12
+    elif serie_freq == "Y":
+        last = 1
+    elif serie_freq == "h":
+        last = 24
+    acc_12m = ts[-last:].sum()
+
+    
+
+    
+    return pd.Series({
+            "sample_entropy": sample_entropy, 
+            "cv": cv, 
+            "len_ts": len_ts, 
+            "acc_12m": acc_12m,
+            "adf":adf})
 
 def time_series_segmentation(
     data: pd.DataFrame,
@@ -58,55 +120,7 @@ def time_series_segmentation(
     return pd.merge(data, seg_metrics, on=serie_id)
     
 
-def _seg_metrics(
-    serie_data: pd.DataFrame,
-    serie_target: str,
-    serie_freq: str
-):
-    """
-    This function compute metrics (Sample Entropy, Coefficient of variation, 
-    Serie size, Amount accumulated in the last cycle).
 
-    Args:
-        serie_data: Dataframe with time serie.
-        serie_target: Target column name.
-        serie_freq: Serie frequency.
-    Returns:
-        Serie metrics.
-    """
-
-    ts = serie_data[serie_target].values
-    nonzeros = np.nonzero(ts)
-    first_point = nonzeros[0][0]
-    last_point = nonzeros[0][-1]
-    len_ts = (last_point - first_point) + 1
-    ts = ts[first_point:]
-    sample_entropy = _sample_entropy(ts, m=2, r=0.2*np.std(ts)) 
-    mean = ts.mean()
-    if mean:
-        cv = ts.std()/mean
-    else:
-        cv = np.nan
-
-    if serie_freq == "D":
-        last = 30
-    elif serie_freq == "M" or serie_freq == "MS":
-        last = 12
-    elif serie_freq == "Y":
-        last = 1
-    elif serie_freq == "h":
-        last = 24
-    acc_12m = ts[-last:].sum()
-
-    adf = adfuller(ts)[0]
-
-    
-    return pd.Series({
-            "sample_entropy": sample_entropy, 
-            "cv": cv, 
-            "len_ts": len_ts, 
-            "acc_12m": acc_12m,
-            "adf":adf})
 
 
 

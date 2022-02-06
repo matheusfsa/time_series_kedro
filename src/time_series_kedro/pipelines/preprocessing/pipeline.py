@@ -28,7 +28,8 @@ def create_pipeline(**kwargs):
                 "data": "prepared_data",
                 "serie_target": "params:serie_target",
                 "serie_id": "params:series_level.columns",
-                "serie_freq": "params:serie_freq"},
+                "serie_freq": "params:serie_freq",
+                "n_jobs": "params:n_jobs"},
             outputs="seg_metrics",
             name="compute_seg_metrics"
         ),

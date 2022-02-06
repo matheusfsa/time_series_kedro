@@ -9,9 +9,9 @@ serie_period: date
 serie_freq: D
 
 series_level:
-  columns: [family,]
+  columns: [store_nbr, family]
 
-test_size: 30
+test_size: 15
 
 group_divisions:
   cv: 
