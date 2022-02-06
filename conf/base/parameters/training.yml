@@ -3,7 +3,7 @@
 #
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
-n_jobs: 2
+
 stride: 365
 fr_horizon: 15
 initial: 0.3
