@@ -1,4 +1,4 @@
-import imp
+
 from typing import Any, Dict, List, Union
 import numpy as np
 import pandas as pd
@@ -28,7 +28,7 @@ def compute_seg_metrics(
     group_func = lambda data, group_cols, **kwargs: data.groupby(group_cols).apply(lambda serie_data: _seg_metrics(serie_data, **kwargs)) 
     seg_data = parallel_groupby(data, group_func, serie_id, n_jobs=n_jobs, serie_target=serie_target, serie_freq=serie_freq)
     return seg_data.reset_index()
-    
+
 def _seg_metrics(
     data: pd.DataFrame,
     serie_target: str,

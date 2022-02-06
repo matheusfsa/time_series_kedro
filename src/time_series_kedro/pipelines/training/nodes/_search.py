@@ -6,7 +6,7 @@ from sklearn import base
 from itertools import product
 from joblib import Parallel, delayed, cpu_count
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import mean_absolute_percentage_error, mean_squared_log_error
 from sklearn.base import BaseEstimator
 import time_series_kedro.extras.models as used_models
 from time_series_kedro.extras.utils import ld2dl
@@ -63,8 +63,10 @@ class TSModelSearchCV(BaseEstimator):
                                                   enumerate(params), enumerate(self.cv_split.split(y, X)))
         )
         out = pd.DataFrame(ld2dl(out))
+        
         out["estimator"] = out.estimator.apply(str)
         estimators_results = out.groupby("estimator").mean().metric
+        #estimators_results = estimators_results[~estimators_results.isna()]
         best_estimator_str = estimators_results.idxmin()
         self._best_score = estimators_results.min()
         self._best_estimator =  eval(f"used_models.{best_estimator_str}")
@@ -140,12 +142,14 @@ def _fit_and_pred(
         start_time = time.time()
         preds = estimator.predict(len(test), X=X_test)
         preds[preds < 0] = 0
+        
         if score == "rmse":
             metric = np.sqrt(mean_squared_error(test, preds))
         if score == "mape":
             metric = mean_absolute_percentage_error(test + 1, preds + 1)
+        if score == "rmsle":
+            metric = np.sqrt(mean_squared_log_error(test + 1, preds + 1))
         preds = np.round(preds, 0)
-        
         if not np.isnan(preds).all():
             status = 'success'
         else:
@@ -154,6 +158,7 @@ def _fit_and_pred(
         pred_time = time.time() - start_time
 
     except Exception as e:
+        raise e
         fit_time = time.time() - start_time
         start_time = time.time()
         preds = np.empty(len(test))
@@ -182,6 +187,5 @@ def _fit_and_pred(
             'error_message': message,
             'metric': metric,
           }
-    
     return ret
 

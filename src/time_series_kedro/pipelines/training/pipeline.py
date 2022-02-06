@@ -58,7 +58,7 @@ def create_pipeline(**kwargs):
     evaluation_pipeline = Pipeline([
         node(
             func=model_selection,
-            inputs=[f"best_estimators_{model}" for model in models],
+            inputs=["params:series_level.columns"] + [f"best_estimators_{model}" for model in models],
             outputs="best_estimators",
             name="model_selection"
         ),

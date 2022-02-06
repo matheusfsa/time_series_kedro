@@ -7,7 +7,7 @@
 stride: 365
 fr_horizon: 15
 initial: 0.3
-score: mape
+score: rmsle
 models:
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing

@@ -1,5 +1,4 @@
-import imp
-from itertools import groupby
+
 from typing import Any, Dict, List, Union
 
 import numpy as np
@@ -23,9 +22,9 @@ def train_model(
     fr_horizon: int,
     initial: Union[float, int],
     n_jobs: int = -1,
-    score: str = "rmse"
+    score: str = "rmse",
     ) -> pd.DataFrame:
-
+    
     model_groups_params = model["params"]
     
     estimator = model_from_string(model["model_class"], model["default_args"])
@@ -75,10 +74,10 @@ def _search(
         result = pd.Series({"estimator": None, "metric": np.nan})
     return result   
 
-def model_selection(*best_estimators):
+def model_selection(serie_id, *best_estimators):
 
     estimators = pd.concat(best_estimators)
-    estimators = estimators.reset_index().groupby("family").apply(lambda data: data.set_index("estimator").metric.idxmin())
+    estimators = estimators.reset_index().groupby(serie_id).apply(lambda data: data.set_index("estimator").metric.idxmin())
     estimators.name = "best_estimator"
     estimators = estimators.reset_index()
     
