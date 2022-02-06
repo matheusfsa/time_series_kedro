@@ -1,16 +1,20 @@
-from typing import List, Union
+from typing import List, Optional, Union
 import pandas as pd
 
 #from time_series_kedro.extras.utils import rolling_fill
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
+import logging
 
+logger = logging.getLogger(__name__)
 
 def prepare_time_series(
     data: pd.DataFrame, 
     date_col: str, 
     serie_target: str, 
-    serie_id: Union[str, List[str]]
+    serie_id: Union[str, List[str]],
+    sampling: Optional[int] = None,
+    random_state: int = 42
     ) -> pd.DataFrame:
     """
     This node prepare time series, ensuring that all series have all periods 
@@ -26,6 +30,11 @@ def prepare_time_series(
     Returns:
         Data with prepared time series
     """
+    if sampling:
+        np.random.seed(random_state)
+        series = np.random.choice(data[serie_id[0]].unique(), min(sampling, data[serie_id[0]].nunique()), replace=False)
+        data = data[data[serie_id[0]].isin(series)]
+        logger.info(f"# Series after sampling: {data[serie_id].drop_duplicates().shape[0]}")
     data = data.groupby([date_col] + serie_id).sum()[serie_target].reset_index()
 
     data = data.groupby(serie_id).apply(lambda serie_data: _build_series(serie_data, serie_target, date_col))
@@ -49,6 +58,7 @@ def _build_series(
     Returns:
         Data with prepared time serie
     """
+    
     serie = serie_data.set_index(date_col)[[serie_target]]
     full_serie = serie.reindex(pd.Index(pd.date_range(serie.index.min(), serie.index.max()), name="date"))
     full_serie[serie_target] = _rolling_fill(full_serie[serie_target], n=2)

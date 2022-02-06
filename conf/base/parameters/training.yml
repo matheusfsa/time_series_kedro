@@ -1,0 +1,36 @@
+# This is a boilerplate parameters config generated for pipeline 'training'
+# using Kedro 0.17.6.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
+
+stride: 365
+fr_horizon: 15
+initial: 0.3
+score: rmsle
+models:
+    exponential_smoothing:
+        model_class: time_series_kedro.extras.models.ExponentialSmoothing
+        default_args: null
+        params:
+            all:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False]
+                      trend: [null]
+                      seasonal: [add, null]
+                      seasonal_periods: [6, 12]
+    svr:
+      model_class: time_series_kedro.extras.models.SVRForecaster
+      default_args: null
+      params:
+          all:
+            params_search:
+                search: random
+                n_iter: 2
+                params:
+                    lags: [3, 6, 12]
+                    alpha: stats.loguniform(0.1, 10.0)
+    
