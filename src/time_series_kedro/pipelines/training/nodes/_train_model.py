@@ -24,6 +24,23 @@ def train_model(
     n_jobs: int = -1,
     score: str = "rmse",
     ) -> pd.DataFrame:
+    """
+    This node train and search the best estimators for each serie.
+    Args:
+        series_data: DataFrame with train time series.
+        serie_id: Column or list of columns that identify series.
+        serie_data: DataFrame with time series.
+        serie_target: Target column name.
+        date_col: Period column name.
+        model: Dict with model definition
+        stride: Stride of Cross Validation
+        fr_horizon: Forecast horizon of Cross Validation
+        initial: initial size of train dataset
+        n_jobs: number of jobs in Cross Validation process
+        score: used metric
+    Returns:
+        Best Estimators for each serie
+    """
     
     model_groups_params = model["params"]
     
@@ -52,8 +69,26 @@ def _search(
     initial: Union[float, int],
     n_jobs: int,
     score: str):
-    serie_group = serie_data.group.iloc[0]
+    """
+    This node train and search the best estimators for a serie.
+    Args:
+        series_data: DataFrame with train time series.
+        serie_id: Column or list of columns that identify series.
+        serie_data: DataFrame with time series.
+        serie_target: Target column name.
+        date_col: Period column name.
+        model: Dict with model definition
+        stride: Stride of Cross Validation
+        fr_horizon: Forecast horizon of Cross Validation
+        initial: initial size of train dataset
+        n_jobs: number of jobs in Cross Validation process
+        score: used metric
+    Returns:
+        Best Estimator
+    """
 
+    serie_group = serie_data.group.iloc[0]
+    
     model_group = None
     if serie_group in model_groups_params:
         model_group  = serie_group

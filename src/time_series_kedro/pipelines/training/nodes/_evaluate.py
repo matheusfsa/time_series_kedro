@@ -19,7 +19,20 @@ def test_models(
     date_col: str,
     score: str,
     ) -> Dict[str, Any]:
-
+    """
+    This node evaluate the best estimators in test.
+    Args:
+        train_data: DataFrame with train time series.
+        test_data: DataFrame with test time series.
+        best_estimators: DataFrame with best estimators for each serie.
+        serie_id: Column or list of columns that identify series.
+        serie_data: DataFrame with time series.
+        serie_target: Target column name.
+        date_col: Period column name.
+        score: used metric
+    Returns:
+        Metrics in test
+    """
     train_data = pd.merge(train_data, best_estimators, on=serie_id)
     
     metrics_df = train_data.groupby(serie_id).apply(lambda serie_data: _test_model(serie_data, 
@@ -44,6 +57,20 @@ def _test_model(
     date_col: str,
     score: str
     ):
+    """
+    This node evaluate the best estimator in test.
+    Args:
+        data: DataFrame with train time series.
+        test_data: DataFrame with test time series.
+        best_estimators: DataFrame with best estimators for each serie.
+        serie_id: Column or list of columns that identify series.
+        serie_data: DataFrame with time series.
+        serie_target: Target column name.
+        date_col: Period column name.
+        score: used metric
+    Returns:
+        Metrics in test
+    """
     group = data.group.values[0]
      #pd.Series([True for _ in range(test_data.shape[0])], index=test_data.index)
     if isinstance(serie_id, list):
