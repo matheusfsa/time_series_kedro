@@ -31,3 +31,5 @@ pmdarima==1.8.4
 prophet==1.0.1
 
 kedro-mlflow==0.8.0
+
+click<8.0
