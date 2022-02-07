@@ -18,7 +18,9 @@ def create_pipeline(**kwargs):
                 "data": "master_table",
                 "date_col": "params:serie_period",
                 "serie_target": "params:serie_target",
-                "serie_id": "params:series_level.columns"},
+                "serie_id": "params:series_level.columns",
+                "sampling": "params:sampling",
+                "random_state": "params:random_state"},
             outputs="prepared_data",
             name="prepare_time_series"
         ),
@@ -28,7 +30,8 @@ def create_pipeline(**kwargs):
                 "data": "prepared_data",
                 "serie_target": "params:serie_target",
                 "serie_id": "params:series_level.columns",
-                "serie_freq": "params:serie_freq"},
+                "serie_freq": "params:serie_freq",
+                "n_jobs": "params:n_jobs"},
             outputs="seg_metrics",
             name="compute_seg_metrics"
         ),

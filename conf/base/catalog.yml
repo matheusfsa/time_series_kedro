@@ -15,7 +15,6 @@ test_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/test.csv
   load_args:
-    index_col: id
     parse_dates: [date]
     
 transactions:
@@ -61,3 +60,25 @@ eval_data:
   filepath: data/05_model_input/eval_data.csv
   load_args:
     parse_dates: [date]
+
+############# Models ########################
+best_estimators:
+  type: pandas.CSVDataSet
+  filepath: data/06_models/best_estimators.csv
+
+########### Metrics ########################
+metrics:
+    type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
+
+
+########## Model Results ###################
+
+forecast_results:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/forecast_results.csv
+  load_args:
+    parse_dates: [date]
+
+submission_file:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/submission_file.csv
