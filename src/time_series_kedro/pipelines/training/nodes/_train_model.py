@@ -8,6 +8,7 @@ from time_series_kedro.extras.utils import model_from_string
 from pmdarima.model_selection import RollingForecastCV
 from sklearn.base import clone, BaseEstimator
 import pandas as pd
+from tqdm import tqdm
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -45,8 +46,8 @@ def train_model(
     model_groups_params = model["params"]
     
     estimator = model_from_string(model["model_class"], model["default_args"])
-    
-    best_estimators = series_data.groupby(serie_id).apply(lambda serie_data: _search(serie_data, 
+    tqdm.pandas()
+    best_estimators = series_data.groupby(serie_id).progress_apply(lambda serie_data: _search(serie_data, 
                                                                                     estimator, 
                                                                                     model_groups_params, 
                                                                                     serie_target, 
