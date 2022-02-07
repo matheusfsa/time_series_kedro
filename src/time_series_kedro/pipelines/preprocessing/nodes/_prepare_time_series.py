@@ -6,6 +6,8 @@ import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 import logging
 
+from tqdm import tqdm
+
 logger = logging.getLogger(__name__)
 
 def prepare_time_series(
@@ -36,8 +38,8 @@ def prepare_time_series(
         data = data[data[serie_id[0]].isin(series)]
         logger.info(f"# Series after sampling: {data[serie_id].drop_duplicates().shape[0]}")
     data = data.groupby([date_col] + serie_id).sum()[serie_target].reset_index()
-
-    data = data.groupby(serie_id).apply(lambda serie_data: _build_series(serie_data, serie_target, date_col))
+    tqdm.pandas()
+    data = data.groupby(serie_id).progress_apply(lambda serie_data: _build_series(serie_data, serie_target, date_col))
     return data.reset_index()
 
 

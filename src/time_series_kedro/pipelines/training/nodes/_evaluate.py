@@ -6,6 +6,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_log_error
 import time_series_kedro.extras.models as models
 import pandas as pd
+from tqdm import tqdm
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -34,8 +35,8 @@ def test_models(
         Metrics in test
     """
     train_data = pd.merge(train_data, best_estimators, on=serie_id)
-    
-    metrics_df = train_data.groupby(serie_id).apply(lambda serie_data: _test_model(serie_data, 
+    tqdm.pandas()
+    metrics_df = train_data.groupby(serie_id).progress_apply(lambda serie_data: _test_model(serie_data, 
                                                                                 test_data,
                                                                                 serie_id,
                                                                                 serie_target, 
