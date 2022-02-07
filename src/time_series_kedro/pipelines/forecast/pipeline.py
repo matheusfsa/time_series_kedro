@@ -11,6 +11,7 @@ def create_pipeline(**kwargs):
         node(
             func=forecast,
             inputs={"series_data": "seg_data",
+                    "test_data": "test_data",
                     "best_estimators": "best_estimators",
                     "serie_id":"params:series_level.columns",
                     "serie_target":"params:serie_target",

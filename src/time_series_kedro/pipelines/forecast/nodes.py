@@ -6,9 +6,11 @@ from typing import Union, List
 import numpy as np
 import pandas as pd
 import time_series_kedro.extras.models as models
+from tqdm import tqdm
 
 def forecast(
     series_data: pd.DataFrame,
+    test_data: pd.DataFrame,
     best_estimators: pd.DataFrame,
     serie_id: Union[str, List],
     serie_target: str,
@@ -28,12 +30,14 @@ def forecast(
         DataFrame with forecast
     """
     series_data = pd.merge(series_data, best_estimators, on=serie_id)
-    forecast_results = series_data.groupby(serie_id).apply(lambda data: _forecast(data, 
+    tqdm.pandas()
+    forecast_results = series_data.groupby(serie_id).progress_apply(lambda data: _forecast(data, 
                                                                                   serie_target, 
                                                                                   date_col, 
                                                                                   fr_horizon))
-    forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()       
-    forecast_results["id"] = pd.Series(np.arange(series_data.shape[0], series_data.shape[0] + forecast_results.shape[0]), name="id")                                                          
+    forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()         
+    forecast_results = pd.merge(test_data, forecast_results, on=["store_nbr", "family", "date"], validate="1:1")
+
     return forecast_results
 
 def _forecast(
@@ -57,6 +61,7 @@ def _forecast(
     estimator.fit(ts)
 
     y_pred = estimator.predict(fr_horizon)
+    y_pred[y_pred < 0] = 0
     result = pd.DataFrame(data={"sales": y_pred, 
                                 "date":pd.date_range(start=ts.index[-1], 
                                                      periods=y_pred.shape[0] + 1, 

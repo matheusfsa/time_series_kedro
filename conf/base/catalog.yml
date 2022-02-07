@@ -15,7 +15,6 @@ test_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/test.csv
   load_args:
-    index_col: id
     parse_dates: [date]
     
 transactions:
