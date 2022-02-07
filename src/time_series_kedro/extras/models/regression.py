@@ -8,7 +8,8 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import  make_pipeline
 
 import logging
-
+import warnings
+warnings.filterwarnings("ignore")
 
 class RegressionModel(RegressorMixin, BaseEstimator):
     '''

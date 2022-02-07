@@ -8,6 +8,9 @@ import time_series_kedro.extras.models as models
 import pandas as pd
 from tqdm import tqdm
 import warnings
+import logging
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -47,7 +50,7 @@ def test_models(
     }
     for group in metrics_df.group.unique():
         metrics[f"metric_{group}"] = {"value": metrics_df[metrics_df.group== group]["metric"].mean(), "step":1}
-
+    logger.info(f"metrics:{metrics}")
     return metrics
 
 def _test_model(
