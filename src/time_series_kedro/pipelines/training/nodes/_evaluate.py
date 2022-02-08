@@ -91,7 +91,7 @@ def _test_model(
     estimator = eval(f"models.{data.best_estimator.iloc[0]}")
     estimator.fit(ts)
     y_pred = estimator.predict(y_true.shape[0])
-    #y_pred[y_pred < 0] = 0
+    y_pred[y_pred < 0] = 0
     if score == "rmse":
         metric = np.sqrt(mean_squared_error(y_true, y_pred))
     if score == "mape":
