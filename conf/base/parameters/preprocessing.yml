@@ -13,7 +13,7 @@ random_state: 42
 series_level:
   columns: [store_nbr, family]
 
-test_size: 15
+test_size: 16
 
 group_divisions:
   cv: 

@@ -90,12 +90,12 @@ def _search(
 
     serie_group = serie_data.group.iloc[0]
     
-    model_group = None
     if serie_group in model_groups_params:
         model_group  = serie_group
-    if "all" in model_groups_params:
+    elif "all" in model_groups_params:
         model_group = "all"
-
+    else:
+        model_group = None
     if model_group is not None:
         params_search = build_params_search(model_groups_params[model_group]["params_search"])
         estimator = clone(estimator_base)
