@@ -5,7 +5,7 @@
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
 
 stride: 365
-fr_horizon: 15
+fr_horizon: 16
 initial: 0.3
 score: rmsle
 

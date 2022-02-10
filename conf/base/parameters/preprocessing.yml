@@ -7,7 +7,7 @@
 serie_target: sales
 serie_period: date
 serie_freq: D
-sampling: 2
+sampling: False
 random_state: 42
 
 series_level:
