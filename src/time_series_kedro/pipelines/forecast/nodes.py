@@ -10,12 +10,12 @@ from tqdm import tqdm
 
 def forecast(
     series_data: pd.DataFrame,
-    test_data: pd.DataFrame,
     best_estimators: pd.DataFrame,
     serie_id: Union[str, List],
     serie_target: str,
     date_col: str,
     fr_horizon: int,
+    serie_freq: int
     ) -> pd.DataFrame:
     """
     This node execute forecast for each time serie.
@@ -34,10 +34,10 @@ def forecast(
     forecast_results = series_data.groupby(serie_id).progress_apply(lambda data: _forecast(data, 
                                                                                   serie_target, 
                                                                                   date_col, 
-                                                                                  fr_horizon))
+                                                                                  fr_horizon,
+                                                                                  serie_freq))
     forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()         
-    forecast_results = pd.merge(test_data, forecast_results, on=["store_nbr", "family", "date"], validate="1:1")
-
+    #forecast_results = pd.merge(test_data, forecast_results, on=serie_id + [date_col], validate="1:1")
     return forecast_results
 
 def _forecast(
@@ -45,6 +45,7 @@ def _forecast(
     serie_target: str,
     date_col: str,
     fr_horizon: int,
+    serie_freq: str,
     ) -> pd.DataFrame:
     """
     This node execute forecast for a time serie.
@@ -65,12 +66,16 @@ def _forecast(
     result = pd.DataFrame(data={"sales": y_pred, 
                                 "date":pd.date_range(start=ts.index[-1], 
                                                      periods=y_pred.shape[0] + 1, 
-                                                     freq="D")[1:]})
+                                                     freq=serie_freq)[1:]})
     
     return result                                                
 
 def get_submission_file(
-    forecast_results: pd.DataFrame
+    forecast_results: pd.DataFrame,
+    test_data: pd.DataFrame,
+    serie_id: Union[str, List],
+    serie_target: str,
+    date_col: str,
 ):  
     """
     This node generate submission file.
@@ -79,4 +84,5 @@ def get_submission_file(
     Returns:
         Submission file
     """
-    return forecast_results[['id','sales']]
+    forecast_results = pd.merge(test_data, forecast_results, on=serie_id + [date_col], validate="1:1")
+    return forecast_results[['id',serie_target]]
