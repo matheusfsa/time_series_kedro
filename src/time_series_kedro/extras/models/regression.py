@@ -5,10 +5,12 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import LinearSVR
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import Ridge, Lasso
 from sklearn.pipeline import  make_pipeline
 
 import logging
-
+import warnings
+warnings.filterwarnings("ignore")
 
 class RegressionModel(RegressorMixin, BaseEstimator):
     '''
@@ -118,7 +120,6 @@ class RandomForestForecaster(RegressionModel):
     def __init__(self, lags=1, **kwargs):
         super().__init__(base_estimator=RandomForestRegressor, lags=lags, **kwargs)
 
-
 class SVRForecaster(RegressionModel):
     def __init__(self, lags=1, **kwargs):
         super().__init__(base_estimator=LinearSVR, lags=lags, **kwargs)  
@@ -127,3 +128,12 @@ class AdaForecaster(RegressionModel):
     def __init__(self, lags=1, **kwargs):
         
         super().__init__(base_estimator=AdaBoostRegressor, lags=lags, **kwargs)
+
+class RidgeForecaster(RegressionModel):
+    def __init__(self, lags=1, **kwargs):
+        
+        super().__init__(base_estimator=Ridge, lags=lags, **kwargs)
+
+class LassoForecaster(RegressionModel):
+    def __init__(self, lags=1, **kwargs):
+        super().__init__(base_estimator=Lasso, lags=lags, **kwargs)

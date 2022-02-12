@@ -4,34 +4,65 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
 
-stride: 365
-fr_horizon: 15
+stride: 180
+fr_horizon: 16
 initial: 0.3
 score: rmsle
 
 models:
+    ridge:
+        model_class: time_series_kedro.extras.models.RidgeForecaster
+        default_args: null
+        params:
+            all:
+                params_search:
+                    search: random
+                    n_iter: 20
+                    params:
+                        lags: [2, 8, 15, 30]
+                        alpha: stats.loguniform(0.05, 10.0)
+                        n_jobs: [1]
+    lasso:
+        model_class: time_series_kedro.extras.models.LassoForecaster
+        default_args: null
+        params:
+            all:
+                params_search:
+                    search: random
+                    n_iter: 20
+                    params:
+                        lags: [2, 8, 15, 30]
+                        alpha: stats.loguniform(0.05, 10.0)
+                        n_jobs: [1]
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing
         default_args: null
         params:
-            all:
+            0:
               params_search:
                   search: grid
                   n_iter: 2
                   params:
                       damped_trend: [False]
                       trend: [null]
+                      seasonal: [null]
+                      seasonal_periods: [2]
+            1:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False, True]
+                      trend: [add, mul, null]
+                      seasonal: [add, mul, null]
+                      seasonal_periods: [2, 8, 15, 29]
+            
+            all:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False]
+                      trend: [add, null]
                       seasonal: [add, null]
-                      seasonal_periods: [6, 12]
-    svr:
-      model_class: time_series_kedro.extras.models.SVRForecaster
-      default_args: null
-      params:
-          all:
-            params_search:
-                search: random
-                n_iter: 2
-                params:
-                    lags: [3, 6, 12]
-                    alpha: stats.loguniform(0.1, 10.0)
-    
+                      seasonal_periods: [15]

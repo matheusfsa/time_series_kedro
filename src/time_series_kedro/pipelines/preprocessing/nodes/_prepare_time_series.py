@@ -33,9 +33,11 @@ def prepare_time_series(
         Data with prepared time series
     """
     if sampling:
+        data["serie_id"] = list(map(str, zip(*[data[c] for c in serie_id])))
         np.random.seed(random_state)
-        series = np.random.choice(data[serie_id[0]].unique(), min(sampling, data[serie_id[0]].nunique()), replace=False)
-        data = data[data[serie_id[0]].isin(series)]
+        series = np.random.choice(data["serie_id"].unique(), min(sampling, data["serie_id"].nunique()), replace=False)
+        data = data[data["serie_id"].isin(series)]
+        data = data.drop(columns="serie_id")
         logger.info(f"# Series after sampling: {data[serie_id].drop_duplicates().shape[0]}")
     data = data.groupby([date_col] + serie_id).sum()[serie_target].reset_index()
     tqdm.pandas()

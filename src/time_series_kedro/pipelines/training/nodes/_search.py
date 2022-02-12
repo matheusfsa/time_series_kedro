@@ -11,9 +11,10 @@ from sklearn.base import BaseEstimator
 import time_series_kedro.extras.models as used_models
 from time_series_kedro.extras.utils import ld2dl
 import time
+import logging
 import warnings
 warnings.filterwarnings("ignore")
-import logging
+
 
 logger = logging.getLogger(__name__)
 class TSModelSearchCV(BaseEstimator):
@@ -158,7 +159,6 @@ def _fit_and_pred(
         pred_time = time.time() - start_time
 
     except Exception as e:
-        raise e
         fit_time = time.time() - start_time
         start_time = time.time()
         preds = np.empty(len(test))
