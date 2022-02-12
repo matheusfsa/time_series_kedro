@@ -4,7 +4,6 @@ from .sk_arima import ARIMA
 from .regression import (RandomForestForecaster, 
                          SVRForecaster, 
                          AdaForecaster,
-                         XGBForecaster,
                          RidgeForecaster,
                          LassoForecaster)
 
@@ -14,7 +13,6 @@ __all__ = [
     "RandomForestForecaster",
     "SVRForecaster",
     "AdaForecaster",
-    "XGBForecaster",
     "RidgeForecaster",
     "LassoForecaster",
 ]                        
