@@ -4,12 +4,29 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
 
-stride: 365
+stride: 180
 fr_horizon: 16
 initial: 0.3
 score: rmsle
 
 models:
+    arima:
+        model_class: time_series_kedro.extras.models.ARIMA
+        default_args: null
+        params:
+            1:
+                params_search:
+                    search: grid
+                    params:
+                        order: [[1,0,0], [0,0,1], [1,1,1]]
+                        seasonal_order: [[0,0,0,0], [1,0,1,2], [1,0,1,15]]
+            2:
+                params_search:
+                    search: grid
+                    params:
+                        order: [[1,0,0], [0,0,1], [1,1,1]]
+                        seasonal_order: [[0,0,0,0], [1,0,1,2]]
+
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing
         default_args: null
