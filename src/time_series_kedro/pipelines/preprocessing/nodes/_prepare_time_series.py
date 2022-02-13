@@ -44,7 +44,14 @@ def prepare_time_series(
     data = data.groupby(serie_id).progress_apply(lambda serie_data: _build_series(serie_data, serie_target, date_col))
     return data.reset_index()
 
-
+def add_exog(data, exog_info, *exogs):
+    for exog_name, exog_data in zip(exog_info.keys(), exogs):
+        merge_cols = exog_info[exog_name]["merge_columns"]
+        target_cols = exog_info[exog_name]["target_columns"]
+        data = pd.merge(data, exog_data[merge_cols + target_cols], on=merge_cols)
+        data[target_cols] = data[target_cols].fillna(0)
+    return data
+    
 def _build_series(
     serie_data: pd.DataFrame, 
     serie_target: str, 

@@ -28,6 +28,8 @@ stores:
 oil:
   type: pandas.CSVDataSet
   filepath: data/01_raw/oil.csv
+  load_args:
+    parse_dates: [date]
 
 holiday_events:
   type: pandas.CSVDataSet
