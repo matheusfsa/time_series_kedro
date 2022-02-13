@@ -6,6 +6,7 @@ from .regression import (RandomForestForecaster,
                          AdaForecaster,
                          RidgeForecaster,
                          LassoForecaster)
+from .sk_prophet import Prophet                        
 
 __all__ = [
     "ExponentialSmoothing",
@@ -15,4 +16,5 @@ __all__ = [
     "AdaForecaster",
     "RidgeForecaster",
     "LassoForecaster",
+    "Prophet",
 ]                        
