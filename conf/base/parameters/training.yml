@@ -10,6 +10,17 @@ initial: 0.3
 score: rmsle
 
 models:
+    theta:
+        model_class: time_series_kedro.extras.models.Theta
+        default_args: null
+        params:
+            all:
+                params_search:
+                    search: grid
+                    n_iter: 10
+                    params:
+                        period: [2, 8, 15, 30]
+                        method: [additive, multiplicative]
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing
         default_args: null
