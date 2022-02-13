@@ -10,43 +10,6 @@ initial: 0.3
 score: rmsle
 
 models:
-    prophet:
-        model_class: time_series_kedro.extras.models.Prophet
-        default_args: null
-        params:
-            all:
-                params_search:
-                    search: random
-                    n_iter: 10
-                    params:
-                        period: [2, 8, 15, 30]
-                        seasonality: [additive, multiplicative]
-                        changepoint_prior_scale: stats.loguniform(0.8, 0.95)
-                        seasonality_prior_scale: stats.loguniform(0.01, 0.5)
-    ridge:
-        model_class: time_series_kedro.extras.models.RidgeForecaster
-        default_args: null
-        params:
-            all:
-                params_search:
-                    search: random
-                    n_iter: 20
-                    params:
-                        lags: [2, 8, 15, 30]
-                        alpha: stats.loguniform(0.05, 10.0)
-                        n_jobs: [1]
-    lasso:
-        model_class: time_series_kedro.extras.models.LassoForecaster
-        default_args: null
-        params:
-            all:
-                params_search:
-                    search: random
-                    n_iter: 20
-                    params:
-                        lags: [2, 8, 15, 30]
-                        alpha: stats.loguniform(0.05, 10.0)
-                        n_jobs: [1]
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing
         default_args: null
