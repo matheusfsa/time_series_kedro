@@ -4,11 +4,12 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
 
-stride: 180
+stride: 360
 fr_horizon: 16
-initial: 0.3
+initial: 0.7
 score: rmsle
-
+train_start: null
+use_exog: False
 models:
     theta:
         model_class: time_series_kedro.extras.models.Theta

@@ -45,12 +45,20 @@ def prepare_time_series(
     return data.reset_index()
 
 def add_exog(data, exog_info, *exogs):
-    for exog_name, exog_data in zip(exog_info.keys(), exogs):
+    test_exog = pd.DataFrame()
+    for i, (exog_name, exog_data) in enumerate(zip(exog_info.keys(), exogs)):
         merge_cols = exog_info[exog_name]["merge_columns"]
         target_cols = exog_info[exog_name]["target_columns"]
-        data = pd.merge(data, exog_data[merge_cols + target_cols], on=merge_cols)
+        train_exog_data = exog_data[exog_data.date <= data.date.max()]
+        test_exog_data = exog_data[exog_data.date > data.date.max()]
+        data = pd.merge(data, train_exog_data[merge_cols + target_cols], on=merge_cols)
+        if i > 0:
+            test_exog = pd.merge(test_exog, test_exog_data[merge_cols + target_cols], on=merge_cols)
+        else:
+            test_exog = test_exog_data[merge_cols + target_cols]
         data[target_cols] = data[target_cols].fillna(0)
-    return data
+        test_exog[target_cols] = test_exog[target_cols].fillna(0)
+    return data, test_exog
     
 def _build_series(
     serie_data: pd.DataFrame, 

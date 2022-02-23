@@ -49,11 +49,19 @@ seg_metrics:
 seg_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/seg_data.csv
+  load_args:
+    parse_dates: [date]
 
 ############# Model Input ####################
 train_data:
   type: pandas.CSVDataSet
   filepath: data/05_model_input/train_data.csv
+  load_args:
+    parse_dates: [date]
+
+exog_test_data:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/test_exog_data.csv
   load_args:
     parse_dates: [date]
 

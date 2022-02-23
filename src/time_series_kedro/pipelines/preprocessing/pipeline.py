@@ -38,7 +38,7 @@ def create_pipeline(**kwargs):
         node(
             func=add_exog,
             inputs=["prepared_data_wo_exog","params:exog"] + [data_ref for data_ref in exog],
-            outputs="prepared_data",
+            outputs=["prepared_data", "exog_test_data"],
             name="add_exog"
         ),
         node(
