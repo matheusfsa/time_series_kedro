@@ -4,13 +4,24 @@ generated using Kedro 0.17.6
 """
 
 from kedro.pipeline import Pipeline, node
+from kedro.framework.session.session import get_current_session
 from .nodes import (prepare_time_series, 
                     compute_seg_metrics, 
                     time_series_segmentation, 
-                    train_test_split)
+                    train_test_split,
+                    add_exog)
 
 
 def create_pipeline(**kwargs):
+    try:
+        session = get_current_session()
+        context = session.load_context()
+        catalog = context.catalog
+
+        exog = catalog.load("params:exog")
+    except:
+        exog = ["oil",]
+
     return Pipeline([
         node(
             func=prepare_time_series,
@@ -21,8 +32,14 @@ def create_pipeline(**kwargs):
                 "serie_id": "params:series_level.columns",
                 "sampling": "params:sampling",
                 "random_state": "params:random_state"},
-            outputs="prepared_data",
+            outputs="prepared_data_wo_exog",
             name="prepare_time_series"
+        ),
+        node(
+            func=add_exog,
+            inputs=["prepared_data_wo_exog","params:exog"] + [data_ref for data_ref in exog],
+            outputs=["prepared_data", "exog_test_data"],
+            name="add_exog"
         ),
         node(
             func=compute_seg_metrics,

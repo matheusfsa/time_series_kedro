@@ -28,7 +28,10 @@ def search_template(name: str) -> Pipeline:
                         "fr_horizon":"params:fr_horizon" ,
                         "initial":"params:initial",
                         "n_jobs": "params:n_jobs",
-                        "score": "params:score"},
+                        "score": "params:score",
+                        "train_start": "params:train_start",
+                        "exog_info": "params:exog",
+                        "use_exog": "params:use_exog"},
                 outputs="best_estimators",
                 name=name
             ),
@@ -70,7 +73,10 @@ def create_pipeline(**kwargs):
                     "serie_id":"params:series_level.columns",
                     "serie_target":"params:serie_target" ,
                     "date_col":"params:serie_period",
-                    "score": "params:score"},
+                    "score": "params:score",
+                    "train_start": "params:train_start",
+                    "exog_info": "params:exog",
+                    "use_exog": "params:use_exog"},
             outputs="metrics",
             name="evaluation"
         )

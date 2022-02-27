@@ -27,9 +27,6 @@ class RegressionModel(RegressorMixin, BaseEstimator):
     def _create_lagged_data(
         self, 
         target_series, 
-        past_covariates, 
-        future_covariates, 
-        max_samples_per_ts
     ):
         n_in = self.lags
         n_out = 1
@@ -65,11 +62,14 @@ class RegressionModel(RegressorMixin, BaseEstimator):
         ts = y.values
         
         self._train_series = ts.copy()
-        self._lagged_data = self._create_lagged_data(ts, 
-                                                    past_covariates=None, 
-                                                    future_covariates=None, 
-                                                    max_samples_per_ts=None)
-        
+        X_train, y_train = self._create_lagged_data(ts)
+        if X is not None:
+            exog_lagged_data = []
+            for exog in X.columns:
+                X_exog, y_exog= self._create_lagged_data(X[exog])
+                exog_lagged_data = np.concatenate((X_exog, y_exog.reshape(-1, 1)), axis=1)
+                X_train = np.concatenate([X_train, exog_lagged_data], axis=1)
+        self._lagged_data = (X_train, y_train)
         model_params = self.get_params().copy()
         del model_params["lags"]
         del model_params["poly_degree"]
@@ -79,7 +79,6 @@ class RegressionModel(RegressorMixin, BaseEstimator):
             steps.append(PolynomialFeatures(self.poly_degree))
         steps.append(self._base_estimator(**model_params))
         self._model = make_pipeline(*steps)
-
         X, y = self._lagged_data
         self._model.fit(X, y)
         logging.disable(logging.NOTSET)
@@ -88,13 +87,20 @@ class RegressionModel(RegressorMixin, BaseEstimator):
     
     def predict(self, n_periods, X=None):
         logging.disable(logging.ERROR)
-        X = self._lagged_data[0][-1, :]
+        X_hist = np.zeros(self._lagged_data[0].shape[-1])
+        X_hist[:self.lags] = self._lagged_data[0][-1, :self.lags]
+        X_hist[self.lags - 1] = self._lagged_data[1][-1]
         preds = []
+
         for i in range(n_periods):
-            pred = self._model.predict(X.reshape(1, -1))
+            if X is not None:
+                for i, exog in enumerate(X.columns):
+                    X_hist[self.lags + i] = X[exog].iloc[i]
+            pred = self._model.predict(X_hist.reshape(1, -1))
             preds.append(pred[0])
-            X = np.roll(X, -1)
-            X[-1] = pred
+            X_hist = np.roll(X_hist, -1)
+            X_hist[self.lags-1] = pred
+            
         logging.disable(logging.NOTSET)
         return np.array(preds)
     

@@ -4,7 +4,6 @@ import sys
 import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin, BaseEstimator
-from statsmodels.tsa.exponential_smoothing.ets import ETSModel
 from prophet import Prophet as FacebookProphet
 from typing import Dict, Tuple
 import os
@@ -22,7 +21,8 @@ class Prophet(RegressorMixin, BaseEstimator):
             
     def fit(self, y, X=None):
         
-        self._model = FacebookProphet(yearly_seasonality=False,
+        self._model = FacebookProphet(
+                        yearly_seasonality=False,
                         weekly_seasonality=False,
                         daily_seasonality=False,
                        )
@@ -32,6 +32,14 @@ class Prophet(RegressorMixin, BaseEstimator):
                               prior_scale=self.seasonality_prior_scale,
                              mode=self.seasonality)  
         df_train = pd.DataFrame({"ds":y.index, "y": y.values})
+        if X is not None:
+            X.index.name = "ds"
+            regressors_names = X.columns
+            X = X.reset_index()
+            df_train = pd.merge(df_train, X, on="ds")
+            for regressor in regressors_names:
+                self._model.add_regressor(regressor)
+
         self.train_size = df_train.shape[0]
         with suppress_stdout_stderr():
             self._model.fit(df_train)
@@ -41,21 +49,6 @@ class Prophet(RegressorMixin, BaseEstimator):
     def predict(self, n_periods, X=None):
         future = self._model.make_future_dataframe(periods=n_periods, freq='MS')
         pred = self._model.predict(future)['yhat'][-n_periods:].values
-        return pred
-    
-    def predict_in_sample(self, 
-                          start=None,
-                          end=None,
-                          dynamic=False,
-                          index=None,
-                          method=None,
-                          simulate_repetitions=1000):
-        
-        n_periods = abs(self.train_size - end)
-        future = self._model.make_future_dataframe(periods=n_periods+1, freq='MS')
-        pred = self._model.predict(future)
-        pred = pred.set_index("ds")
-        pred = pred[["yhat", "yhat_lower", "yhat_upper"]]
         return pred
                     
     def get_params(self, deep=True):

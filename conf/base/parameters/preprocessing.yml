@@ -10,6 +10,10 @@ serie_freq: D
 sampling: False
 random_state: 42
 
+exog:
+  oil:
+    merge_columns: [date]
+    target_columns: [dcoilwtico]
 series_level:
   columns: [store_nbr, family]
 

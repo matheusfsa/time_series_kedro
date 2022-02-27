@@ -21,13 +21,13 @@ class ARIMA(RegressorMixin, BaseEstimator):
     def fit(self, y, X=None):
         self._initial_date = y.index[0]
         self._model = pm.ARIMA(order=self.order, seasonal_order=self.seasonal_order, suppress_warnings=True)
-        self._model.fit(y)
+        self._model.fit(y, X=X)
         return self
         
         
     def predict(self, n_periods, X=None):
         
-        return self._model.predict(n_periods)
+        return self._model.predict(n_periods, X=X)
     
     def predict_in_sample(self, 
                           start=None,
