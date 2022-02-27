@@ -32,6 +32,14 @@ class Prophet(RegressorMixin, BaseEstimator):
                               prior_scale=self.seasonality_prior_scale,
                              mode=self.seasonality)  
         df_train = pd.DataFrame({"ds":y.index, "y": y.values})
+        if X is not None:
+            X.index.name = "ds"
+            regressors_names = X.columns
+            X = X.reset_index()
+            df_train = pd.merge(df_train, X, on="ds")
+            for regressor in regressors_names:
+                self._model.add_regressor(regressor)
+
         self.train_size = df_train.shape[0]
         with suppress_stdout_stderr():
             self._model.fit(df_train)
