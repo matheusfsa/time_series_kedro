@@ -40,7 +40,7 @@ def compute_seg_metrics(
     elif serie_freq == "h":
         last = 24
     metrics["acc"] = series[-last:,:].sum(axis=0)
-    return metrics
+    return metrics.reset_index()
 
 
 def time_series_segmentation(
