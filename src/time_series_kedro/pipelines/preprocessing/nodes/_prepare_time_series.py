@@ -1,12 +1,13 @@
-from typing import List, Optional, Union
+"""
+Prepare time series functions.
+"""
+import logging
+from typing import List, Union
 import pandas as pd
 
 #from time_series_kedro.extras.utils import rolling_fill
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
-import logging
-
-from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 

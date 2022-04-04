@@ -1,4 +1,7 @@
-from typing import Any, Dict, List, Union, Optional
+"""
+Segmentation functions.
+"""
+from typing import Any, Dict, Optional
 from itertools import product
 import logging
 
