@@ -24,6 +24,6 @@ group_divisions:
     method: mean
     args: []
 
-  acc_12m: 
+  acc: 
     method: quantile
     args: [0.7]
