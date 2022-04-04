@@ -31,8 +31,7 @@ def prepare_time_series(
     Returns:
         Data with prepared time series
     """
-    if "serie_id" not in data.columns:
-        data["serie_id"] = list(map(str, zip(*[data[c] for c in serie_id])))
+    data["serie_id"] = list(map(str, zip(*[data[c] for c in serie_id])))
     series_data = data.pivot_table(columns="serie_id", values=serie_target, index=date_col)
     new_idx = pd.Index(pd.date_range(series_data.index.min(), series_data.index.max()), name="date")
     series_data = series_data.reindex(new_idx)
