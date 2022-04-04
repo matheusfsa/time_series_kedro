@@ -53,11 +53,11 @@ def test_models(
         for exog_name in exog_info:
             exog_list += exog_info[exog_name]["target_columns"]
 
-    train_data = pd.merge(train_data, best_estimators, on=serie_id)
+    train_data = pd.merge(train_data, best_estimators, on="serie_id")
     tqdm.pandas()
-    metrics_df = train_data.groupby(serie_id).progress_apply(lambda serie_data: _test_model(serie_data, 
+    metrics_df = train_data.groupby("serie_id").progress_apply(lambda serie_data: _test_model(serie_data, 
                                                                                 test_data,
-                                                                                serie_id,
+                                                                                "serie_id",
                                                                                 serie_target, 
                                                                                 date_col,
                                                                                 score,
@@ -97,14 +97,8 @@ def _test_model(
     """
     group = data.group.values[0]
      #pd.Series([True for _ in range(test_data.shape[0])], index=test_data.index)
-    if isinstance(serie_id, list):
-        serie_points = True
-        for id_col in serie_id:
-            idx = data[id_col].values[0]
-            serie_points = (serie_points) & (test_data[id_col] == idx)
-    else:
-        idx = data[serie_id].values[0]
-        serie_points = test_data[serie_id] == idx
+    idx = data["serie_id"].values[0]
+    serie_points = test_data["serie_id"] == idx
     y_true = test_data[serie_points].set_index(date_col)[serie_target]
     ts = data.set_index(date_col)[serie_target]
     

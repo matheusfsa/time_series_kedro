@@ -69,13 +69,12 @@ def train_model(
     
     estimator = model_from_string(model["model_class"], model["default_args"])
     best_estimators = pd.DataFrame()
-    for serie_idx, serie_data in tqdm(series_data.groupby(serie_id), total=series_data[serie_id].drop_duplicates().shape[0]):
+    for serie_idx, serie_data in tqdm(series_data.groupby("serie_id"), total=series_data["serie_id"].nunique()):
         serie_result = _search(serie_data, estimator, model_groups_params, 
                                serie_target, date_col, stride, 
                                fr_horizon, initial,n_jobs,score, 
                                use_exog, exog_list)
-        for id_col, id in zip(serie_id, serie_idx):
-            serie_result[id_col] = id
+        serie_result["serie_id"] = serie_idx
         best_estimators = pd.concat((best_estimators, serie_result), ignore_index=True)
     return best_estimators
 
@@ -149,7 +148,7 @@ def _search(
 def model_selection(serie_id, *best_estimators):
 
     estimators = pd.concat(best_estimators)
-    estimators = estimators.reset_index().groupby(serie_id).apply(lambda data: data.set_index("estimator").metric.idxmin())
+    estimators = estimators.reset_index().groupby("serie_id").apply(lambda data: data.set_index("estimator").metric.idxmin())
     estimators.name = "best_estimator"
     estimators = estimators.reset_index()
     

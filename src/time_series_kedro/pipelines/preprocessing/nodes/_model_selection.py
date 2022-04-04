@@ -21,8 +21,8 @@ def train_test_split(
     Returns:
         Train and test DataFrames
     """
-    train_data = data.groupby(serie_id).apply(lambda data: data.iloc[:-test_size,:])
-    test_data = data.groupby(serie_id).apply(lambda data: data.iloc[-test_size:,:])
+    train_data = data.groupby("serie_id").apply(lambda data: data.iloc[:-test_size,:])
+    test_data = data.groupby("serie_id").apply(lambda data: data.iloc[-test_size:,:])
     return train_data, test_data
 
 
