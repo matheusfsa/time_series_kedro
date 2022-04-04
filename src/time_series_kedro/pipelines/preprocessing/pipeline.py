@@ -12,14 +12,18 @@ from .nodes import (prepare_time_series,
                     add_exog)
 
 
-def create_pipeline(**kwargs):
+def create_pipeline():
+    """
+    This function create a pipeline that preprocessing data.
+    """
+    
     try:
         session = get_current_session()
         context = session.load_context()
         catalog = context.catalog
 
         exog = catalog.load("params:exog")
-    except:
+    except RuntimeError:
         exog = ["oil",]
 
     return Pipeline([
@@ -29,9 +33,7 @@ def create_pipeline(**kwargs):
                 "data": "master_table",
                 "date_col": "params:serie_period",
                 "serie_target": "params:serie_target",
-                "serie_id": "params:series_level.columns",
-                "sampling": "params:sampling",
-                "random_state": "params:random_state"},
+                "serie_id": "params:series_level.columns"},
             outputs="prepared_data_wo_exog",
             name="prepare_time_series"
         ),
@@ -46,9 +48,8 @@ def create_pipeline(**kwargs):
             inputs={
                 "data": "prepared_data",
                 "serie_target": "params:serie_target",
-                "serie_id": "params:series_level.columns",
                 "serie_freq": "params:serie_freq",
-                "n_jobs": "params:n_jobs"},
+                "date_col": "params:serie_period",},
             outputs="seg_metrics",
             name="compute_seg_metrics"
         ),
@@ -57,8 +58,9 @@ def create_pipeline(**kwargs):
             inputs={
                 "data": "prepared_data",
                 "seg_metrics": "seg_metrics",
-                "serie_id": "params:series_level.columns",
-                "group_divisions": "params:group_divisions"},
+                "group_divisions": "params:group_divisions",
+                "sampling": "params:sampling",
+                "random_state": "params:random_state"},
             outputs="seg_data",
             name="time_series_segmentation"
         ),
