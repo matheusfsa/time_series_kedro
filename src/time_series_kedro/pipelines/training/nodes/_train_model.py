@@ -68,9 +68,9 @@ def train_model(
             exog_list += exog_info[exog_name]["target_columns"]
     ds = TSDataset(series_data,
                    serie_id="serie_id", 
-                   serie_target=serie_target, 
-                   serie_date=date_col, 
-                   serie_group="group", 
+                   serie_target=serie_target,
+                   serie_date=date_col,
+                   serie_group="group",
                    serie_exogs=exog_list)
     estimator_base = model_from_string(model["model_class"], model["default_args"])
     best_estimators = pd.DataFrame()
@@ -88,7 +88,6 @@ def train_model(
             
             start_point = int(initial) if initial > 1 else int(initial*y.shape[0])
             cv = RollingForecastCV(step=stride, h=fr_horizon, initial=start_point)
-
             search_model = TSModelSearchCV(clone(estimator), params_search, cv_split=cv, n_jobs=n_jobs, verbose=0, score=score)
             search_model.fit(y, X=X)
             serie_result = pd.DataFrame({"estimator": [search_model._best_estimator], "metric": [search_model._best_score]})

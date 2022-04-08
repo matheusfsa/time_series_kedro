@@ -48,8 +48,8 @@ def create_pipeline():
             inputs={
                 "data": "prepared_data",
                 "serie_target": "params:serie_target",
-                "serie_freq": "params:serie_freq",
-                "date_col": "params:serie_period",},
+                "date_col": "params:serie_period",
+                "n_last_points": "params:n_last_points"},
             outputs="seg_metrics",
             name="compute_seg_metrics"
         ),

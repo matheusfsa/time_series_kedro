@@ -49,9 +49,10 @@ class Prophet(RegressorMixin, BaseEstimator):
         
     def predict(self, n_periods, X=None):
         future = self._model.make_future_dataframe(periods=n_periods, freq='D')
-        X = X.rename_axis("ds").reset_index()
-        future = pd.merge(future, X, on="ds", how="left")
-        future[self._regressors_names] = future[self._regressors_names].fillna(0)
+        if X is not None:
+            X = X.rename_axis("ds").reset_index()
+            future = pd.merge(future, X, on="ds", how="left")
+            future[self._regressors_names] = future[self._regressors_names].fillna(0)
         pred = self._model.predict(future).set_index("ds")['yhat'].iloc[-n_periods:]
         return pred
                     

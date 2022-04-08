@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 def compute_seg_metrics(
     data: pd.DataFrame,
     serie_target: str,
-    serie_freq: str,
     date_col: str,
+    n_last_points: int
 ) -> pd.Series:
     """
     This node calculates metrics to assess the quality of the series.
@@ -34,15 +34,7 @@ def compute_seg_metrics(
     metrics["std_serie"] = series.std(axis=0)
     metrics["cv"] = metrics.std_serie/metrics.mean_serie
 
-    if serie_freq == "D":
-        last = 30
-    elif serie_freq == "M" or serie_freq == "MS":
-        last = 12
-    elif serie_freq == "Y":
-        last = 1
-    elif serie_freq == "h":
-        last = 24
-    metrics["acc"] = series[-last:,:].sum(axis=0)
+    metrics["acc"] = series[-n_last_points:,:].sum(axis=0)
     return metrics.reset_index()
 
 

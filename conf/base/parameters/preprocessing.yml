@@ -9,7 +9,7 @@ serie_period: date
 serie_freq: D
 sampling: False
 random_state: 42
-
+n_last_points: 30
 exog:
   oil:
     merge_columns: [date]
