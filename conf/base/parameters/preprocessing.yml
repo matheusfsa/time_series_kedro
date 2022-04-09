@@ -9,11 +9,13 @@ serie_period: date
 serie_freq: D
 sampling: False
 random_state: 42
+n_last_points: 30
 
 exog:
   oil:
     merge_columns: [date]
     target_columns: [dcoilwtico]
+    
 series_level:
   columns: [store_nbr, family]
 
@@ -24,6 +26,6 @@ group_divisions:
     method: mean
     args: []
 
-  acc_12m: 
+  acc: 
     method: quantile
     args: [0.7]

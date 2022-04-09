@@ -7,7 +7,7 @@ from jmespath import search
 import numpy as np
 from ._params_search import build_params_search
 from ._search import TSModelSearchCV
-from time_series_kedro.extras.utils import model_from_string
+from time_series_kedro.extras.utils import model_from_string, TSDataset
 from pmdarima.model_selection import RollingForecastCV
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import fbeta_score, make_scorer
@@ -66,16 +66,35 @@ def train_model(
     if exog_info is not None:
         for exog_name in exog_info:
             exog_list += exog_info[exog_name]["target_columns"]
-    
-    estimator = model_from_string(model["model_class"], model["default_args"])
+    ds = TSDataset(series_data,
+                   serie_id="serie_id", 
+                   serie_target=serie_target,
+                   serie_date=date_col,
+                   serie_group="group",
+                   serie_exogs=exog_list)
+    estimator_base = model_from_string(model["model_class"], model["default_args"])
     best_estimators = pd.DataFrame()
-    for serie_idx, serie_data in tqdm(series_data.groupby(serie_id), total=series_data[serie_id].drop_duplicates().shape[0]):
-        serie_result = _search(serie_data, estimator, model_groups_params, 
-                               serie_target, date_col, stride, 
-                               fr_horizon, initial,n_jobs,score, 
-                               use_exog, exog_list)
-        for id_col, id in zip(serie_id, serie_idx):
-            serie_result[id_col] = id
+    for serie_idx, serie_group, X, y in tqdm(ds, total=series_data["serie_id"].nunique()):
+    
+        if serie_group in model_groups_params:
+            model_group  = serie_group
+        elif "all" in model_groups_params:
+            model_group = "all"
+        else:
+            model_group = None
+        if model_group is not None:
+            params_search = build_params_search(model_groups_params[model_group]["params_search"])
+            estimator = clone(estimator_base)
+            
+            start_point = int(initial) if initial > 1 else int(initial*y.shape[0])
+            cv = RollingForecastCV(step=stride, h=fr_horizon, initial=start_point)
+            search_model = TSModelSearchCV(clone(estimator), params_search, cv_split=cv, n_jobs=n_jobs, verbose=0, score=score)
+            search_model.fit(y, X=X)
+            serie_result = pd.DataFrame({"estimator": [search_model._best_estimator], "metric": [search_model._best_score]})
+            
+        else:
+            serie_result = pd.DataFrame({"estimator": [None], "metric": [np.nan]})
+        serie_result["serie_id"] = serie_idx
         best_estimators = pd.concat((best_estimators, serie_result), ignore_index=True)
     return best_estimators
 
@@ -149,7 +168,7 @@ def _search(
 def model_selection(serie_id, *best_estimators):
 
     estimators = pd.concat(best_estimators)
-    estimators = estimators.reset_index().groupby(serie_id).apply(lambda data: data.set_index("estimator").metric.idxmin())
+    estimators = estimators.reset_index().groupby("serie_id").apply(lambda data: data.set_index("estimator").metric.idxmin())
     estimators.name = "best_estimator"
     estimators = estimators.reset_index()
     

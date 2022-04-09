@@ -33,11 +33,12 @@ class Prophet(RegressorMixin, BaseEstimator):
                              mode=self.seasonality)  
         df_train = pd.DataFrame({"ds":y.index, "y": y.values})
         if X is not None:
-            X.index.name = "ds"
-            regressors_names = X.columns
+            X = X.rename_axis("ds")
+            self._regressors_names = X.columns
             X = X.reset_index()
-            df_train = pd.merge(df_train, X, on="ds")
-            for regressor in regressors_names:
+            df_train = pd.merge(df_train, X, on="ds", how="left")
+            df_train[self._regressors_names] = df_train[self._regressors_names].fillna(0)
+            for regressor in self._regressors_names:
                 self._model.add_regressor(regressor)
 
         self.train_size = df_train.shape[0]
@@ -47,8 +48,12 @@ class Prophet(RegressorMixin, BaseEstimator):
         
         
     def predict(self, n_periods, X=None):
-        future = self._model.make_future_dataframe(periods=n_periods, freq='MS')
-        pred = self._model.predict(future)['yhat'][-n_periods:].values
+        future = self._model.make_future_dataframe(periods=n_periods, freq='D')
+        if X is not None:
+            X = X.rename_axis("ds").reset_index()
+            future = pd.merge(future, X, on="ds", how="left")
+            future[self._regressors_names] = future[self._regressors_names].fillna(0)
+        pred = self._model.predict(future).set_index("ds")['yhat'].iloc[-n_periods:]
         return pred
                     
     def get_params(self, deep=True):
