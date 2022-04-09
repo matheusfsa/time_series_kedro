@@ -61,7 +61,6 @@ class RegressionModel(RegressorMixin, BaseEstimator):
             steps.append(PolynomialFeatures(self.poly_degree))
         steps.append(self._base_estimator(**model_params))
         self._model = make_pipeline(*steps)
-        print(self._lagged_data[0].shape)
         X, y = self._lagged_data
         self._model.fit(X, y)
         logging.disable(logging.NOTSET)
@@ -77,7 +76,6 @@ class RegressionModel(RegressorMixin, BaseEstimator):
 
         for i in range(n_periods):
             if X is not None:
-                exog_values = X.iloc[i, :] 
                 X_pred = np.concatenate((X_hist, X.iloc[i, :]))
                 pred = self._model.predict(X_pred.reshape(1, -1))
             else:
