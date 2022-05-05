@@ -5,43 +5,23 @@
 
 ############################# Raw Data ##############################
 master_table:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/train.csv
-  load_args:
-    index_col: id
-    parse_dates: [date]
+  type: pandas.ParquetDataSet
+  filepath: data/01_raw/train.parquet
 
 test_data:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/test.csv
-  load_args:
-    parse_dates: [date]
-    
-transactions:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/transactions.csv
-
-stores:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/stores.csv
+  type: pandas.ParquetDataSet
+  filepath: data/01_raw/test.parquet
 
 oil:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/oil.csv
-  load_args:
-    parse_dates: [date]
-
-holiday_events:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/holiday_events.csv
-
+  type: pandas.ParquetDataSet
+  filepath: data/01_raw/oil.parquet
 ############## Intermediate data ###############
 prepared_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/prepared_data.csv
   load_args:
     parse_dates: [date]
-    
+
 seg_metrics:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/seg_metrics.csv
