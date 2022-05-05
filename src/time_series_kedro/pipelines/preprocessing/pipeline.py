@@ -4,10 +4,10 @@ generated using Kedro 0.17.6
 """
 
 from kedro.pipeline import Pipeline, node
-from kedro.framework.session.session import get_current_session
-from .nodes import (prepare_time_series, 
-                    compute_seg_metrics, 
-                    time_series_segmentation, 
+from kedro.framework.session.session import _active_session
+from .nodes import (prepare_time_series,
+                    compute_seg_metrics,
+                    time_series_segmentation,
                     train_test_split,
                     add_exog)
 
@@ -16,15 +16,11 @@ def create_pipeline():
     """
     This function create a pipeline that preprocessing data.
     """
-    
-    try:
-        session = get_current_session()
-        context = session.load_context()
-        catalog = context.catalog
 
-        exog = catalog.load("params:exog")
-    except RuntimeError:
-        exog = ["oil",]
+    context = _active_session.load_context()
+    catalog = context.catalog
+
+    exog = catalog.load("params:exog")
 
     return Pipeline([
         node(
