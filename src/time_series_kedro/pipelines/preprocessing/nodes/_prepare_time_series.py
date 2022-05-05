@@ -1,12 +1,13 @@
-from typing import List, Optional, Union
+"""
+Prepare time series functions.
+"""
+import logging
+from typing import List, Union
 import pandas as pd
 
 #from time_series_kedro.extras.utils import rolling_fill
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
-import logging
-
-from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,6 @@ def prepare_time_series(
     date_col: str, 
     serie_target: str, 
     serie_id: Union[str, List[str]],
-    sampling: Optional[int] = None,
-    random_state: int = 42
     ) -> pd.DataFrame:
     """
     This node prepare time series, ensuring that all series have all periods 
@@ -32,49 +31,15 @@ def prepare_time_series(
     Returns:
         Data with prepared time series
     """
-    if sampling:
-        data["serie_id"] = list(map(str, zip(*[data[c] for c in serie_id])))
-        np.random.seed(random_state)
-        series = np.random.choice(data["serie_id"].unique(), min(sampling, data["serie_id"].nunique()), replace=False)
-        data = data[data["serie_id"].isin(series)]
-        data = data.drop(columns="serie_id")
-        logger.info(f"# Series after sampling: {data[serie_id].drop_duplicates().shape[0]}")
-    data = data.groupby([date_col] + serie_id).sum()[serie_target].reset_index()
-    tqdm.pandas()
-    data = data.groupby(serie_id).progress_apply(lambda serie_data: _build_series(serie_data, serie_target, date_col))
-    return data.reset_index()
+    data["serie_id"] = list(map(str, zip(*[data[c] for c in serie_id])))
+    series_data = data.pivot_table(columns="serie_id", values=serie_target, index=date_col)
+    new_idx = pd.Index(pd.date_range(series_data.index.min(), series_data.index.max()), name="date")
+    series_data = series_data.reindex(new_idx)
+    series_data = _rolling_mean(series_data)
+    series_data = pd.melt(series_data, value_name=serie_target, ignore_index=False).reset_index()
+    return series_data
 
-
-def _build_series(
-    serie_data: pd.DataFrame, 
-    serie_target: str, 
-    date_col: str) -> pd.DataFrame:
-    """
-    This function prepare a time series, ensuring that all series have all periods 
-    (adding duplicate periods and periods without observations) and 
-    filling null values.
-
-    Args:
-        serie_data: Dataframe with time series.
-        serie_target: Target column name.
-        date_col: Period column name.
-
-    Returns:
-        Data with prepared time serie
-    """
-    
-    serie = serie_data.set_index(date_col)[[serie_target]]
-    full_serie = serie.reindex(pd.Index(pd.date_range(serie.index.min(), serie.index.max()), name="date"))
-    full_serie[serie_target] = _rolling_fill(full_serie[serie_target], n=2)
-    return full_serie
-
-
-# Fill function
-def _rolling_fill(
-    data: pd.Series,
-    n: int
-) -> pd.Series:
-
+def _rolling_mean(data: pd.DataFrame, window_size: int = 2) -> pd.DataFrame:
     """
     Fills Na values with the mean of the nearest values.
 
@@ -82,20 +47,39 @@ def _rolling_fill(
         data: Original Series.
         n: Window size.
     Return:
-        Series with missing values filled. 
+        DataFrame with missing values filled.
     """
-
-    data[data < 0] = 0
-
     out = np.copy(data)
-    w_size = n//2
-
-    # Create sliding window view -> [[x[i]-1, x[i], x[i+1]] for i in range(x.shape)]
-    rolling_mean = np.hstack((np.full(w_size, np.nan), out, np.full(w_size, np.nan)))
-    axis = 0 if len(rolling_mean.shape) == 1 else 1
-    rolling_mean = np.nanmean(sliding_window_view(rolling_mean, (n+1,), axis=axis), axis=1)
-    # Get Mean e filling nan values
+    filler = np.full((window_size//2, out.shape[1]), np.nan)
+    rolling_mean = np.vstack((filler, out, filler))
+    rolling_mean = sliding_window_view(rolling_mean, window_size+1, 0)
+    rolling_mean = np.nanmean(rolling_mean, axis=2)
     out[np.isnan(out)] = rolling_mean[np.isnan(out)]
     out[np.isnan(out)] = 0
+    out_data = pd.DataFrame(data=out, columns=data.columns, index=data.index)
+    return out_data
 
-    return out
+def add_exog(data, exog_info, *exogs):
+    """
+    FThis node add exogenous variables to series Dataframe.
+    Args:
+        data: Original Series.
+        exog_info: Exogenous descriptions.
+        exogs: DataFrames with exogs data.
+    Return:
+        DataFrame with endogenous and exogenous data.
+    """
+    test_exog = pd.DataFrame()
+    for i, (exog_name, exog_data) in enumerate(zip(exog_info.keys(), exogs)):
+        merge_cols = exog_info[exog_name]["merge_columns"]
+        target_cols = exog_info[exog_name]["target_columns"]
+        train_exog_data = exog_data[exog_data.date <= data.date.max()]
+        test_exog_data = exog_data[exog_data.date > data.date.max()]
+        data = pd.merge(data, train_exog_data[merge_cols + target_cols], on=merge_cols)
+        if i > 0:
+            test_exog = pd.merge(test_exog, test_exog_data[merge_cols + target_cols], on=merge_cols)
+        else:
+            test_exog = test_exog_data[merge_cols + target_cols]
+        data[target_cols] = data[target_cols].fillna(0)
+        test_exog[target_cols] = test_exog[target_cols].fillna(0)
+    return data, test_exog

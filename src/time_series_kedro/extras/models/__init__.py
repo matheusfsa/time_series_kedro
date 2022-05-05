@@ -6,6 +6,8 @@ from .regression import (RandomForestForecaster,
                          AdaForecaster,
                          RidgeForecaster,
                          LassoForecaster)
+from .sk_prophet import Prophet
+from .sk_theta import Theta                        
 
 __all__ = [
     "ExponentialSmoothing",
@@ -15,4 +17,6 @@ __all__ = [
     "AdaForecaster",
     "RidgeForecaster",
     "LassoForecaster",
+    "Prophet",
+    "Theta",
 ]                        

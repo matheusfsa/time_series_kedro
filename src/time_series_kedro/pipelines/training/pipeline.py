@@ -9,7 +9,7 @@ from kedro.pipeline.modular_pipeline import pipeline
 from functools import reduce
 from operator import add
 
-from kedro.framework.session.session import get_current_session
+from kedro.framework.session.session import _active_session
 from sklearn.model_selection import ParameterSampler
 from .nodes import train_model, model_selection, test_models
 
@@ -19,7 +19,7 @@ def search_template(name: str) -> Pipeline:
         [
             node(
                 func=train_model,
-                inputs={"series_data":"train_data", 
+                inputs={"series_data":"train_data",
                         "serie_id":"params:series_level.columns",
                         "serie_target":"params:serie_target" ,
                         "date_col":"params:serie_period" ,
@@ -28,7 +28,10 @@ def search_template(name: str) -> Pipeline:
                         "fr_horizon":"params:fr_horizon" ,
                         "initial":"params:initial",
                         "n_jobs": "params:n_jobs",
-                        "score": "params:score"},
+                        "score": "params:score",
+                        "train_start": "params:train_start",
+                        "exog_info": "params:exog",
+                        "use_exog": "params:use_exog"},
                 outputs="best_estimators",
                 name=name
             ),
@@ -36,14 +39,10 @@ def search_template(name: str) -> Pipeline:
     )
 
 def create_pipeline(**kwargs):
-    try:
-        session = get_current_session()
-        context = session.load_context()
-        catalog = context.catalog
+    context = _active_session.load_context()
+    catalog = context.catalog
 
-        models = catalog.load("params:models")
-    except:
-        models = ["exponential_smoothing", "arima", "svr"]
+    models = catalog.load("params:models")
 
     search_pipelines = [
         pipeline(
@@ -64,13 +63,16 @@ def create_pipeline(**kwargs):
         ),
         node(
             func=test_models,
-            inputs={"train_data":"train_data", 
+            inputs={"train_data":"train_data",
                     "test_data": "eval_data",
                     "best_estimators": "best_estimators",
                     "serie_id":"params:series_level.columns",
                     "serie_target":"params:serie_target" ,
                     "date_col":"params:serie_period",
-                    "score": "params:score"},
+                    "score": "params:score",
+                    "train_start": "params:train_start",
+                    "exog_info": "params:exog",
+                    "use_exog": "params:use_exog"},
             outputs="metrics",
             name="evaluation"
         )

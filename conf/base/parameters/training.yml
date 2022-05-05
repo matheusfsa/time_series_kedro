@@ -4,36 +4,24 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
 
-stride: 180
+stride: 360
 fr_horizon: 16
-initial: 0.3
+initial: 0.7
 score: rmsle
-
+train_start: null
+use_exog: False
 models:
-    ridge:
-        model_class: time_series_kedro.extras.models.RidgeForecaster
+    theta:
+        model_class: time_series_kedro.extras.models.Theta
         default_args: null
         params:
             all:
                 params_search:
-                    search: random
-                    n_iter: 20
+                    search: grid
+                    n_iter: 10
                     params:
-                        lags: [2, 8, 15, 30]
-                        alpha: stats.loguniform(0.05, 10.0)
-                        n_jobs: [1]
-    lasso:
-        model_class: time_series_kedro.extras.models.LassoForecaster
-        default_args: null
-        params:
-            all:
-                params_search:
-                    search: random
-                    n_iter: 20
-                    params:
-                        lags: [2, 8, 15, 30]
-                        alpha: stats.loguniform(0.05, 10.0)
-                        n_jobs: [1]
+                        period: [2, 8, 15, 30]
+                        method: [additive, multiplicative]
     exponential_smoothing:
         model_class: time_series_kedro.extras.models.ExponentialSmoothing
         default_args: null

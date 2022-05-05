@@ -7,7 +7,7 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Ridge, Lasso
 from sklearn.pipeline import  make_pipeline
-
+from numpy.lib.stride_tricks import sliding_window_view
 import logging
 import warnings
 warnings.filterwarnings("ignore")
@@ -27,36 +27,10 @@ class RegressionModel(RegressorMixin, BaseEstimator):
     def _create_lagged_data(
         self, 
         target_series, 
-        past_covariates, 
-        future_covariates, 
-        max_samples_per_ts
     ):
-        n_in = self.lags
-        n_out = 1
-        data = target_series.copy()
-        
-        n_vars = 1 if len(data.shape) == 1 else data.shape[-1]
-        
-        df = pd.DataFrame(data)
-        cols, names = list(), list()
-        # input sequence (t-n, ... t-1)
-        for i in range(n_in, 0, -1):
-            cols.append(df.shift(i))
-            names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-        # forecast sequence (t, t+1, ... t+n)
-        for i in range(0, n_out):
-            cols.append(df.shift(-i))
-            if i == 0:
-                names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-            else:
-                names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-
-        # put it all together
-        agg = pd.concat(cols, axis=1)
-        agg.columns = names
-        agg.dropna(inplace=True)
-        X = agg.iloc[:, :-1].values
-        y = agg.iloc[:, -1].values
+        lagged_data = sliding_window_view(target_series, self.lags + 1)
+        X = lagged_data[:, :-1]
+        y = lagged_data[:, -1]
         return X, y        
 
     def fit(self, y, X=None):
@@ -65,11 +39,19 @@ class RegressionModel(RegressorMixin, BaseEstimator):
         ts = y.values
         
         self._train_series = ts.copy()
-        self._lagged_data = self._create_lagged_data(ts, 
-                                                    past_covariates=None, 
-                                                    future_covariates=None, 
-                                                    max_samples_per_ts=None)
-        
+        X_train, y_train = self._create_lagged_data(ts)
+        if X is not None:
+            X_train = np.concatenate((X_train, X.values[self.lags:,]), axis=1)
+            """
+            Exog window
+            
+            exog_lagged_data = []
+            for exog in X.columns:
+                X_exog, y_exog= self._create_lagged_data(X[exog])
+                exog_lagged_data = np.concatenate((X_exog, y_exog.reshape(-1, 1)), axis=1)
+                X_train = np.concatenate([X_train, exog_lagged_data], axis=1)
+            """
+        self._lagged_data = (X_train, y_train)
         model_params = self.get_params().copy()
         del model_params["lags"]
         del model_params["poly_degree"]
@@ -79,7 +61,6 @@ class RegressionModel(RegressorMixin, BaseEstimator):
             steps.append(PolynomialFeatures(self.poly_degree))
         steps.append(self._base_estimator(**model_params))
         self._model = make_pipeline(*steps)
-
         X, y = self._lagged_data
         self._model.fit(X, y)
         logging.disable(logging.NOTSET)
@@ -88,13 +69,21 @@ class RegressionModel(RegressorMixin, BaseEstimator):
     
     def predict(self, n_periods, X=None):
         logging.disable(logging.ERROR)
-        X = self._lagged_data[0][-1, :]
+        X_hist = np.zeros(self.lags)
+        X_hist[:self.lags] = self._lagged_data[0][-1, :self.lags]
+        X_hist[-1] = self._lagged_data[1][-1]
         preds = []
+
         for i in range(n_periods):
-            pred = self._model.predict(X.reshape(1, -1))
+            if X is not None:
+                X_pred = np.concatenate((X_hist, X.iloc[i, :]))
+                pred = self._model.predict(X_pred.reshape(1, -1))
+            else:
+                pred = self._model.predict(X_hist.reshape(1, -1))
             preds.append(pred[0])
-            X = np.roll(X, -1)
-            X[-1] = pred
+            X_hist = np.roll(X_hist, -1)
+            X_hist[self.lags-1] = pred
+            
         logging.disable(logging.NOTSET)
         return np.array(preds)
     

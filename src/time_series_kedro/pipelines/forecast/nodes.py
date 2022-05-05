@@ -2,20 +2,22 @@
 This is a boilerplate pipeline 'forecast'
 generated using Kedro 0.17.6
 """
-from typing import Union, List
+from typing import Any, Union, List, Optional, Dict
 import numpy as np
 import pandas as pd
-import time_series_kedro.extras.models as models
+from pandas.tseries.offsets import DateOffset
 from tqdm import tqdm
+import time_series_kedro.extras.models as models
+
 
 def forecast(
     series_data: pd.DataFrame,
     best_estimators: pd.DataFrame,
-    serie_id: Union[str, List],
     serie_target: str,
     date_col: str,
     fr_horizon: int,
-    serie_freq: int
+    serie_freq: int,
+    train_start: Optional[Dict[str, Any]],
     ) -> pd.DataFrame:
     """
     This node execute forecast for each time serie.
@@ -29,11 +31,19 @@ def forecast(
     Returns:
         DataFrame with forecast
     """
-    series_data = pd.merge(series_data, best_estimators, on=serie_id)
+    if train_start is not None:
+        if train_start["by"] ==  "offset":
+            train_start_date = series_data.date.max() - DateOffset(**train_start["date"])
+        elif train_start["by"] == "date":
+            train_start_date = train_start["date"]
+        else:
+            raise ValueError(f"Filter by {train_start['by']} was not implemented")
+        series_data = series_data[series_data.date >= train_start_date]
+    series_data = pd.merge(series_data, best_estimators, on="serie_id")
     tqdm.pandas()
-    forecast_results = series_data.groupby(serie_id).progress_apply(lambda data: _forecast(data, 
-                                                                                  serie_target, 
-                                                                                  date_col, 
+    forecast_results = series_data.groupby("serie_id").progress_apply(lambda data: _forecast(data, 
+                                                                                  serie_target,
+                                                                                  date_col,
                                                                                   fr_horizon,
                                                                                   serie_freq))
     forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()         
@@ -84,5 +94,6 @@ def get_submission_file(
     Returns:
         Submission file
     """
-    forecast_results = pd.merge(test_data, forecast_results, on=serie_id + [date_col], validate="1:1")
+    test_data["serie_id"] = list(map(str, zip(*[test_data[c] for c in serie_id])))
+    forecast_results = pd.merge(test_data, forecast_results, on=["serie_id", date_col], validate="1:1")
     return forecast_results[['id',serie_target]]

@@ -4,13 +4,24 @@ generated using Kedro 0.17.6
 """
 
 from kedro.pipeline import Pipeline, node
-from .nodes import (prepare_time_series, 
-                    compute_seg_metrics, 
-                    time_series_segmentation, 
-                    train_test_split)
+from kedro.framework.session.session import _active_session
+from .nodes import (prepare_time_series,
+                    compute_seg_metrics,
+                    time_series_segmentation,
+                    train_test_split,
+                    add_exog)
 
 
-def create_pipeline(**kwargs):
+def create_pipeline():
+    """
+    This function create a pipeline that preprocessing data.
+    """
+
+    context = _active_session.load_context()
+    catalog = context.catalog
+
+    exog = catalog.load("params:exog")
+
     return Pipeline([
         node(
             func=prepare_time_series,
@@ -18,20 +29,23 @@ def create_pipeline(**kwargs):
                 "data": "master_table",
                 "date_col": "params:serie_period",
                 "serie_target": "params:serie_target",
-                "serie_id": "params:series_level.columns",
-                "sampling": "params:sampling",
-                "random_state": "params:random_state"},
-            outputs="prepared_data",
+                "serie_id": "params:series_level.columns"},
+            outputs="prepared_data_wo_exog",
             name="prepare_time_series"
+        ),
+        node(
+            func=add_exog,
+            inputs=["prepared_data_wo_exog","params:exog"] + [data_ref for data_ref in exog],
+            outputs=["prepared_data", "exog_test_data"],
+            name="add_exog"
         ),
         node(
             func=compute_seg_metrics,
             inputs={
                 "data": "prepared_data",
                 "serie_target": "params:serie_target",
-                "serie_id": "params:series_level.columns",
-                "serie_freq": "params:serie_freq",
-                "n_jobs": "params:n_jobs"},
+                "date_col": "params:serie_period",
+                "n_last_points": "params:n_last_points"},
             outputs="seg_metrics",
             name="compute_seg_metrics"
         ),
@@ -40,8 +54,9 @@ def create_pipeline(**kwargs):
             inputs={
                 "data": "prepared_data",
                 "seg_metrics": "seg_metrics",
-                "serie_id": "params:series_level.columns",
-                "group_divisions": "params:group_divisions"},
+                "group_divisions": "params:group_divisions",
+                "sampling": "params:sampling",
+                "random_state": "params:random_state"},
             outputs="seg_data",
             name="time_series_segmentation"
         ),

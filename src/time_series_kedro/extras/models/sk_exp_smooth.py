@@ -46,10 +46,10 @@ class ExponentialSmoothing(RegressorMixin, BaseEstimator):
                     
     def get_params(self, deep=True):
         
-        self.parameters = {'trend':self.trend,
-                           'damped_trend':self.damped_trend,
-                           'seasonal':self.seasonal,
-                           'seasonal_periods':self.seasonal_periods}
+        self.parameters = {'trend': self.trend,
+                           'damped_trend': self.damped_trend,
+                           'seasonal': self.seasonal,
+                           'seasonal_periods': self.seasonal_periods}
     
         return self.parameters
 
