@@ -1,7 +1,7 @@
-time_series_kedro
+{{ cookiecutter.python_package }}
 =================
 
 .. toctree::
    :maxdepth: 4
 
-   time_series_kedro
+   {{ cookiecutter.python_package }}

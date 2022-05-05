@@ -1,5 +1,5 @@
-"""time_series_kedro file for ensuring the package is executable
-as `time_series_kedro` and `python -m time_series_kedro`
+"""{{ cookiecutter.python_package }} file for ensuring the package is executable
+as `{{ cookiecutter.python_package }}` and `python -m {{ cookiecutter.python_package }}`
 """
 import importlib
 from pathlib import Path

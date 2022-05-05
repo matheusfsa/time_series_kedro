@@ -2,9 +2,9 @@
 from typing import Dict
 
 from kedro.pipeline import Pipeline
-from time_series_kedro.pipelines import preprocessing as pp
-from time_series_kedro.pipelines import training 
-from time_series_kedro.pipelines import forecast as fr
+from {{ cookiecutter.python_package }}.pipelines import preprocessing as pp
+from {{ cookiecutter.python_package }}.pipelines import training
+from {{ cookiecutter.python_package }}.pipelines import forecast as fr
 
 def register_pipelines() -> Dict[str, Pipeline]:
     """Register the project's pipelines.

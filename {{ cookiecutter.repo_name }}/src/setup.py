@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 entry_point = (
-    "time_series_kedro = time_series_kedro.__main__:main"
+    "{{ cookiecutter.repo_name }} = {{ cookiecutter.python_package }}.__main__:main"
 )
 
 
@@ -17,7 +17,7 @@ with open("requirements.txt", encoding="utf-8") as f:
             requires.append(req)
 
 setup(
-    name="time_series_kedro",
+    name="{{ cookiecutter.python_package }}",
     version="0.1",
     packages=find_packages(exclude=["tests"]),
     entry_points={"console_scripts": [entry_point]},

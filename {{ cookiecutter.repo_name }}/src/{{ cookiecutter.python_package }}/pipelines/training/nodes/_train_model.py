@@ -7,7 +7,7 @@ from jmespath import search
 import numpy as np
 from ._params_search import build_params_search
 from ._search import TSModelSearchCV
-from time_series_kedro.extras.utils import model_from_string, TSDataset
+from {{ cookiecutter.python_package }}.extras.utils import model_from_string, TSDataset
 from pmdarima.model_selection import RollingForecastCV
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import fbeta_score, make_scorer
@@ -31,7 +31,7 @@ def train_model(
     fr_horizon: int,
     initial: Union[float, int],
     train_start: Optional[Dict],
-    use_exog: bool, 
+    use_exog: bool,
     exog_info: Optional[Dict],
     n_jobs: int = -1,
     score: str = "rmse",
@@ -67,7 +67,7 @@ def train_model(
         for exog_name in exog_info:
             exog_list += exog_info[exog_name]["target_columns"]
     ds = TSDataset(series_data,
-                   serie_id="serie_id", 
+                   serie_id="serie_id",
                    serie_target=serie_target,
                    serie_date=date_col,
                    serie_group="group",
@@ -75,7 +75,7 @@ def train_model(
     estimator_base = model_from_string(model["model_class"], model["default_args"])
     best_estimators = pd.DataFrame()
     for serie_idx, serie_group, X, y in tqdm(ds, total=series_data["serie_id"].nunique()):
-    
+
         if serie_group in model_groups_params:
             model_group  = serie_group
         elif "all" in model_groups_params:
@@ -85,13 +85,13 @@ def train_model(
         if model_group is not None:
             params_search = build_params_search(model_groups_params[model_group]["params_search"])
             estimator = clone(estimator_base)
-            
+
             start_point = int(initial) if initial > 1 else int(initial*y.shape[0])
             cv = RollingForecastCV(step=stride, h=fr_horizon, initial=start_point)
             search_model = TSModelSearchCV(clone(estimator), params_search, cv_split=cv, n_jobs=n_jobs, verbose=0, score=score)
             search_model.fit(y, X=X)
             serie_result = pd.DataFrame({"estimator": [search_model._best_estimator], "metric": [search_model._best_score]})
-            
+
         else:
             serie_result = pd.DataFrame({"estimator": [None], "metric": [np.nan]})
         serie_result["serie_id"] = serie_idx
@@ -140,7 +140,7 @@ def _search(
     """
 
     serie_group = serie_data.group.iloc[0]
-    
+
     if serie_group in model_groups_params:
         model_group  = serie_group
     elif "all" in model_groups_params:
@@ -160,10 +160,10 @@ def _search(
             X = None
         search.fit(np.log1p(ts), X=X)
         result = pd.DataFrame({"estimator": [search._best_estimator], "metric": [search._best_score]})
-        
+
     else:
         result = pd.DataFrame({"estimator": [None], "metric": [np.nan]})
-    return result   
+    return result
 
 def model_selection(serie_id, *best_estimators):
 
@@ -171,5 +171,5 @@ def model_selection(serie_id, *best_estimators):
     estimators = estimators.reset_index().groupby("serie_id").apply(lambda data: data.set_index("estimator").metric.idxmin())
     estimators.name = "best_estimator"
     estimators = estimators.reset_index()
-    
+
     return estimators

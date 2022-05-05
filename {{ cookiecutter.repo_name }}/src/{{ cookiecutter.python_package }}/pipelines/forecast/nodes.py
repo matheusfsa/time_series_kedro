@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.tseries.offsets import DateOffset
 from tqdm import tqdm
-import time_series_kedro.extras.models as models
+import {{ cookiecutter.python_package }}.extras.models as models
 
 
 def forecast(
@@ -41,12 +41,12 @@ def forecast(
         series_data = series_data[series_data.date >= train_start_date]
     series_data = pd.merge(series_data, best_estimators, on="serie_id")
     tqdm.pandas()
-    forecast_results = series_data.groupby("serie_id").progress_apply(lambda data: _forecast(data, 
+    forecast_results = series_data.groupby("serie_id").progress_apply(lambda data: _forecast(data,
                                                                                   serie_target,
                                                                                   date_col,
                                                                                   fr_horizon,
                                                                                   serie_freq))
-    forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()         
+    forecast_results = forecast_results.reset_index(level=-1, drop=True).reset_index()
     #forecast_results = pd.merge(test_data, forecast_results, on=serie_id + [date_col], validate="1:1")
     return forecast_results
 
@@ -73,12 +73,12 @@ def _forecast(
 
     y_pred = estimator.predict(fr_horizon)
     y_pred[y_pred < 0] = 0
-    result = pd.DataFrame(data={"sales": y_pred, 
-                                "date":pd.date_range(start=ts.index[-1], 
-                                                     periods=y_pred.shape[0] + 1, 
+    result = pd.DataFrame(data={"sales": y_pred,
+                                "date":pd.date_range(start=ts.index[-1],
+                                                     periods=y_pred.shape[0] + 1,
                                                      freq=serie_freq)[1:]})
-    
-    return result                                                
+
+    return result
 
 def get_submission_file(
     forecast_results: pd.DataFrame,
@@ -86,7 +86,7 @@ def get_submission_file(
     serie_id: Union[str, List],
     serie_target: str,
     date_col: str,
-):  
+):
     """
     This node generate submission file.
     Args:

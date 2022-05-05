@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-# time_series_kedro documentation build
+# {{ cookiecutter.python_package }} documentation build
 # configuration file, created by sphinx-quickstart.
 #
 # This file is execfile()d with the current directory set to its
@@ -22,11 +22,11 @@ import re
 from kedro.framework.cli.utils import find_stylesheets
 from recommonmark.transform import AutoStructify
 
-from time_series_kedro import __version__ as release
+from {{ cookiecutter.python_package }} import __version__ as release
 
 # -- Project information -----------------------------------------------------
 
-project = "time_series_kedro"
+project = "{{ cookiecutter.python_package }}"
 author = "QuantumBlack"
 
 # The short X.Y version.
@@ -120,7 +120,7 @@ html_show_sourcelink = False
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "time_series_kedrodoc"
+htmlhelp_basename = "{{ cookiecutter.python_package }}doc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -148,8 +148,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "time_series_kedro.tex",
-        "time_series_kedro Documentation",
+        "{{ cookiecutter.python_package }}.tex",
+        "{{ cookiecutter.python_package }} Documentation",
         "QuantumBlack",
         "manual",
     )
@@ -162,8 +162,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        "time_series_kedro",
-        "time_series_kedro Documentation",
+        "{{ cookiecutter.python_package }}",
+        "{{ cookiecutter.python_package }} Documentation",
         [author],
         1,
     )
@@ -177,11 +177,11 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "time_series_kedro",
-        "time_series_kedro Documentation",
+        "{{ cookiecutter.python_package }}",
+        "{{ cookiecutter.python_package }} Documentation",
         author,
-        "time_series_kedro",
-        "Project time_series_kedro codebase.",
+        "{{ cookiecutter.python_package }}",
+        "Project {{ cookiecutter.python_package }} codebase.",
         "Data-Science",
     )
 ]

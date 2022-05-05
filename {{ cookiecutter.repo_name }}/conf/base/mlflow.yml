@@ -31,7 +31,7 @@ tracking:
     pipelines: []
 
   experiment:
-    name: time_series_kedro
+    name: {{ cookiecutter.python_package }}
     restore_if_deleted: True  # if the experiment`name` was previously deleted experiment, should we restore it?
 
   run:

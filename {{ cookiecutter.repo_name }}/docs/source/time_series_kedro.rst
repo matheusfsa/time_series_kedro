@@ -1,7 +1,7 @@
 time\_series\_kedro package
 ===========================
 
-.. automodule:: time_series_kedro
+.. automodule:: {{ cookiecutter.python_package }}
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   time_series_kedro.pipelines
+   {{ cookiecutter.python_package }}.pipelines
 
 Submodules
 ----------
@@ -20,7 +20,7 @@ Submodules
 time\_series\_kedro.hooks module
 --------------------------------
 
-.. automodule:: time_series_kedro.hooks
+.. automodule:: {{ cookiecutter.python_package }}.hooks
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ time\_series\_kedro.hooks module
 time\_series\_kedro.pipeline\_registry module
 ---------------------------------------------
 
-.. automodule:: time_series_kedro.pipeline_registry
+.. automodule:: {{ cookiecutter.python_package }}.pipeline_registry
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ time\_series\_kedro.pipeline\_registry module
 time\_series\_kedro.settings module
 -----------------------------------
 
-.. automodule:: time_series_kedro.settings
+.. automodule:: {{ cookiecutter.python_package }}.settings
    :members:
    :undoc-members:
    :show-inheritance:

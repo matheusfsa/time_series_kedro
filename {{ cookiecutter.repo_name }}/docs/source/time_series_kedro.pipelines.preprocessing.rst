@@ -1,7 +1,7 @@
 time\_series\_kedro.pipelines.preprocessing package
 ===================================================
 
-.. automodule:: time_series_kedro.pipelines.preprocessing
+.. automodule:: {{ cookiecutter.python_package }}.pipelines.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   time_series_kedro.pipelines.preprocessing.nodes
+   {{ cookiecutter.python_package }}.pipelines.preprocessing.nodes
 
 Submodules
 ----------
@@ -20,7 +20,7 @@ Submodules
 time\_series\_kedro.pipelines.preprocessing.pipeline module
 -----------------------------------------------------------
 
-.. automodule:: time_series_kedro.pipelines.preprocessing.pipeline
+.. automodule:: {{ cookiecutter.python_package }}.pipelines.preprocessing.pipeline
    :members:
    :undoc-members:
    :show-inheritance:

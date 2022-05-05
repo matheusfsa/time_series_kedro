@@ -12,7 +12,7 @@ train_start: null
 use_exog: False
 models:
     theta:
-        model_class: time_series_kedro.extras.models.Theta
+        model_class: {{ cookiecutter.python_package }}.extras.models.Theta
         default_args: null
         params:
             all:
@@ -23,7 +23,7 @@ models:
                         period: [2, 8, 15, 30]
                         method: [additive, multiplicative]
     exponential_smoothing:
-        model_class: time_series_kedro.extras.models.ExponentialSmoothing
+        model_class: {{ cookiecutter.python_package }}.extras.models.ExponentialSmoothing
         default_args: null
         params:
             0:
@@ -44,7 +44,7 @@ models:
                       trend: [add, mul, null]
                       seasonal: [add, mul, null]
                       seasonal_periods: [2, 8, 15, 29]
-            
+
             all:
               params_search:
                   search: grid

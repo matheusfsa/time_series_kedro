@@ -4,7 +4,7 @@ import numpy as np
 
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_log_error
-import time_series_kedro.extras.models as models
+import {{ cookiecutter.python_package }}.extras.models as models
 import pandas as pd
 from tqdm import tqdm
 from pandas.tseries.offsets import DateOffset
@@ -24,7 +24,7 @@ def test_models(
     date_col: str,
     score: str,
     train_start: Optional[Dict],
-    use_exog: bool, 
+    use_exog: bool,
     exog_info: Optional[Dict],
     ) -> Dict[str, Any]:
     """
@@ -47,7 +47,7 @@ def test_models(
         else:
             train_start_date = train_start["date"]
         train_data = train_data[train_data.date >= train_start_date]
-    
+
     exog_list = []
     if exog_info is not None:
         for exog_name in exog_info:
@@ -55,10 +55,10 @@ def test_models(
 
     train_data = pd.merge(train_data, best_estimators, on="serie_id")
     tqdm.pandas()
-    metrics_df = train_data.groupby("serie_id").progress_apply(lambda serie_data: _test_model(serie_data, 
+    metrics_df = train_data.groupby("serie_id").progress_apply(lambda serie_data: _test_model(serie_data,
                                                                                 test_data,
                                                                                 "serie_id",
-                                                                                serie_target, 
+                                                                                serie_target,
                                                                                 date_col,
                                                                                 score,
                                                                                 use_exog,
@@ -101,10 +101,10 @@ def _test_model(
     serie_points = test_data["serie_id"] == idx
     y_true = test_data[serie_points].set_index(date_col)[serie_target]
     ts = data.set_index(date_col)[serie_target]
-    
+
     X_train = data[exog_columns + [date_col]].set_index(date_col) if len(exog_columns) and use_exog else None
     X_test = test_data[exog_columns + [date_col]].set_index(date_col) if len(exog_columns) and use_exog else None
-    
+
     estimator = eval(f"models.{data.best_estimator.iloc[0]}")
     estimator.fit(np.log1p(ts), X=X_train)
     y_pred = np.expm1(estimator.predict(y_true.shape[0], X=X_test))

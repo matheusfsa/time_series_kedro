@@ -1,4 +1,4 @@
-# time_series_kedro
+# {{ cookiecutter.python_package }}
 
 ## Overview
 

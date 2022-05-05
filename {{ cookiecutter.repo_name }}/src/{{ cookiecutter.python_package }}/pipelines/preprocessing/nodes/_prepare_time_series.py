@@ -5,21 +5,21 @@ import logging
 from typing import List, Union
 import pandas as pd
 
-#from time_series_kedro.extras.utils import rolling_fill
+#from {{ cookiecutter.python_package }}.extras.utils import rolling_fill
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 logger = logging.getLogger(__name__)
 
 def prepare_time_series(
-    data: pd.DataFrame, 
-    date_col: str, 
-    serie_target: str, 
+    data: pd.DataFrame,
+    date_col: str,
+    serie_target: str,
     serie_id: Union[str, List[str]],
     ) -> pd.DataFrame:
     """
-    This node prepare time series, ensuring that all series have all periods 
-    (adding duplicate periods and adding periods without observations) and 
+    This node prepare time series, ensuring that all series have all periods
+    (adding duplicate periods and adding periods without observations) and
     filling null values.
 
     Args:
