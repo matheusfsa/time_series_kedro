@@ -1,8 +1,8 @@
-# Time Series Starter
+# {{ cookiecutter.project_name }}
 
 ## Overview
 
-This is your new Kedro project, which was generated using `Kedro 0.17.6`.
+This is your new Kedro project, which was generated using `{{ cookiecutter.kedro_version }}`.
 
 Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
