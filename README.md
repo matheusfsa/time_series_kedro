@@ -1,4 +1,4 @@
-# {{ cookiecutter.python_package }}
+# Time Series Starter
 
 ## Overview
 
