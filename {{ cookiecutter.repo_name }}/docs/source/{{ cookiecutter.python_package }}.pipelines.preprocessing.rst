@@ -1,4 +1,4 @@
-time\_series\_kedro.pipelines.preprocessing package
+{{ cookiecutter.python_package }}.pipelines.preprocessing package
 ===================================================
 
 .. automodule:: {{ cookiecutter.python_package }}.pipelines.preprocessing
@@ -17,7 +17,7 @@ Subpackages
 Submodules
 ----------
 
-time\_series\_kedro.pipelines.preprocessing.pipeline module
+{{ cookiecutter.python_package }}.preprocessing.pipeline module
 -----------------------------------------------------------
 
 .. automodule:: {{ cookiecutter.python_package }}.pipelines.preprocessing.pipeline

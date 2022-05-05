@@ -1,4 +1,4 @@
-time\_series\_kedro.pipelines.preprocessing.nodes package
+{{ cookiecutter.python_package }}.pipelines.preprocessing.nodes package
 =========================================================
 
 .. automodule:: {{ cookiecutter.python_package }}.pipelines.preprocessing.nodes

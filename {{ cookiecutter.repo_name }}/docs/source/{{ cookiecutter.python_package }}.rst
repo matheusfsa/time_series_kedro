@@ -1,4 +1,4 @@
-time\_series\_kedro package
+{{ cookiecutter.python_package }} package
 ===========================
 
 .. automodule:: {{ cookiecutter.python_package }}
@@ -17,7 +17,7 @@ Subpackages
 Submodules
 ----------
 
-time\_series\_kedro.hooks module
+{{ cookiecutter.python_package }}.hooks module
 --------------------------------
 
 .. automodule:: {{ cookiecutter.python_package }}.hooks
@@ -25,7 +25,7 @@ time\_series\_kedro.hooks module
    :undoc-members:
    :show-inheritance:
 
-time\_series\_kedro.pipeline\_registry module
+{{ cookiecutter.python_package }}.pipeline\_registry module
 ---------------------------------------------
 
 .. automodule:: {{ cookiecutter.python_package }}.pipeline_registry
@@ -33,7 +33,7 @@ time\_series\_kedro.pipeline\_registry module
    :undoc-members:
    :show-inheritance:
 
-time\_series\_kedro.settings module
+{{ cookiecutter.python_package }}.settings module
 -----------------------------------
 
 .. automodule:: {{ cookiecutter.python_package }}.settings

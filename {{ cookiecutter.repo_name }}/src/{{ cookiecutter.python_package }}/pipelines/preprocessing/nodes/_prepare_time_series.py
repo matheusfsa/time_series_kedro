@@ -5,7 +5,6 @@ import logging
 from typing import List, Union
 import pandas as pd
 
-#from {{ cookiecutter.python_package }}.extras.utils import rolling_fill
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 

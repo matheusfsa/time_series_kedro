@@ -1,4 +1,4 @@
-time\_series\_kedro.pipelines package
+{{ cookiecutter.python_package }}.pipelines package
 =====================================
 
 .. automodule:: {{ cookiecutter.python_package }}.pipelines
