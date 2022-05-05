@@ -1,0 +1,38 @@
+black~=22.0
+flake8>=3.7.9, <4.0
+ipython>=7.31.1, <8.0
+isort~=5.0
+jupyter~=1.0
+jupyterlab~=3.0
+kedro[pandas.CSVDataSet, pandas.ParquetDataSet]=={{ cookiecutter.kedro_version }}
+kedro-telemetry~=0.2.0
+nbstripout~=0.4
+pytest-cov~=3.0
+pytest-mock>=1.7.1, <2.0
+pytest~=6.2
+
+
+# Progress bar
+tqdm==4.64.0
+
+# kedro plugins
+kedro-viz==4.4.0
+kedro-mlflow==0.9.0
+kedro-docker==0.3.0
+
+# Data manipulation
+pandas==1.4.2
+numpy==1.22.3
+
+
+# Data viz
+matplotlib==3.5.1
+
+# Time Series Forecast
+scikit_learn==1.0.2
+statsmodels==0.13.1
+pmdarima==1.8.4
+prophet==1.0.1
+
+
+click>=8.0

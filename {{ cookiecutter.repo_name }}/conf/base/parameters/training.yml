@@ -1,0 +1,56 @@
+# This is a boilerplate parameters config generated for pipeline 'training'
+# using Kedro 0.17.6.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.17.6/04_kedro_project_setup/02_configuration.html#parameters
+
+stride: 360
+fr_horizon: 16
+initial: 0.7
+score: rmsle
+train_start: null
+use_exog: False
+models:
+    theta:
+        model_class: {{ cookiecutter.python_package }}.extras.models.Theta
+        default_args: null
+        params:
+            all:
+                params_search:
+                    search: grid
+                    n_iter: 10
+                    params:
+                        period: [2, 8, 15, 30]
+                        method: [additive, multiplicative]
+    exponential_smoothing:
+        model_class: {{ cookiecutter.python_package }}.extras.models.ExponentialSmoothing
+        default_args: null
+        params:
+            0:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False]
+                      trend: [null]
+                      seasonal: [null]
+                      seasonal_periods: [2]
+            1:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False, True]
+                      trend: [add, mul, null]
+                      seasonal: [add, mul, null]
+                      seasonal_periods: [2, 8, 15, 29]
+
+            all:
+              params_search:
+                  search: grid
+                  n_iter: 2
+                  params:
+                      damped_trend: [False]
+                      trend: [add, null]
+                      seasonal: [add, null]
+                      seasonal_periods: [15]
