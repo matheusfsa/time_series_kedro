@@ -1,7 +1,7 @@
 [tool.kedro]
-package_name = "time_series_kedro"
-project_name = "time_series_kedro"
-project_version = "0.18.0"
+package_name = "{{ cookiecutter.python_package }}"
+project_name = "{{ cookiecutter.project_name }}"
+project_version = "{{ cookiecutter.kedro_version }}"
 
 [tool.isort]
 multi_line_output = 3
@@ -14,7 +14,7 @@ known_third_party = "kedro"
 [tool.pytest.ini_options]
 addopts = """
 --cov-report term-missing \
---cov src/time_series_kedro -ra"""
+--cov src/{{ cookiecutter.python_package }} -ra"""
 
 [tool.coverage.report]
 fail_under = 0
